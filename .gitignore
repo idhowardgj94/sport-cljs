@@ -1,0 +1,6 @@
+node_modules
+.shadow-cljs
+.lsp
+.cpcache
+.clj-kondo/.cache
+.calva
