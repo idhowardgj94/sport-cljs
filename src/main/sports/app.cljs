@@ -1,14 +1,18 @@
 (ns sports.app
   (:require [reagent.dom :as dom])
-  (:require [cljss.core :refer-macros [defstyles]]))
+  (:require [cljss.core :refer-macros [defstyles]])
+  (:require [sports.components.login.index :refer [login]]))
 
-(defstyles test-red []
-  {:color "red"})
+(defstyles card-center
+  []
+  {:height "100vh"
+   :justify-contents "center"
+   :align-items "center"})
 
 (defn app
   []
-  [:div.lg:container.mx-auto.px-4 
-   [:div.max-w-md.rounded.shadow-lg.mx-auto.test "hi"]])
+  [:div.xl:container.mx-auto.px-4.flex {:class (card-center)}
+   (login)])
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
