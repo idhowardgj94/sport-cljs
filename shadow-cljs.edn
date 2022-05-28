@@ -10,6 +10,7 @@
   {:target :browser
    :output-dir "public/js"
    :asset-path "/js"
+   :js-options {:babel-preset-config {:targets {:chrome 80}}}
    :modules
    {:main
     {:init-fn sports.app/init}}}}}
