@@ -1,7 +1,7 @@
 (ns sports.app
-  (:require [reagent.dom :as dom])
-  (:require [cljss.core :refer-macros [defstyles]])
-  (:require [sports.components.login.index :refer [login]]))
+  (:require [reagent.dom :as dom]
+            [cljss.core :refer-macros [defstyles]]
+            [sports.components.login.index :refer [login]]))
 
 (defstyles card-center
   []
