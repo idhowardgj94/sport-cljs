@@ -13,4 +13,8 @@
    :js-options {:babel-preset-config {:targets {:chrome 80}}}
    :modules
    {:main
-    {:init-fn sports.app/init}}}}}
+    {:init-fn sports.app/init}}}
+  :test
+  {:target    :node-test
+   :output-to "out/node-tests.js"
+   :autorun   true}}}

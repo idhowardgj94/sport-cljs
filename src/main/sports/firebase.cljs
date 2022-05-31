@@ -22,15 +22,15 @@
    (reset! app (initializeApp (clj->js config)))
    (getAuth @app)))
 
-(defn get-auth
+(defn- get-auth
   []
   (getAuth @app))
 
-(defn connect-auth?
+(defn- connect-auth?
   []
   (not= @app nil))
 
-(defn connect-error!
+(defn- connect-error!
   []
   (js/Error. "Didn't connect to firebase service."))
 
@@ -52,8 +52,10 @@
         (.then #(reset! user (.-user %))))
     (connect-error!)))
 
-(init-app)
-(login "howard2@gmail.com" "123456")
-(js/console.log @user)
 
-(create-user "howard2@gmail.com" "123456")
+#_((init-app)
+   (login "howard2@gmail.com" "123456")
+   (js/console.log @user)
+
+   (create-user "howard2@gmail.com" "123456"))
+

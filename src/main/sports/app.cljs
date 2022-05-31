@@ -1,6 +1,7 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
             [cljss.core :refer-macros [defstyles]]
+            [sports.firebase :refer [init-app]]
             [sports.components.login.index :refer [login]]))
 
 (defstyles card-center
@@ -16,6 +17,7 @@
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
+  (init-app)
   (dom/render [app]
     (.getElementById js/document "app")))
 

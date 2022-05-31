@@ -3,6 +3,7 @@
     "start": "yarn dev",
     "shadow:watch": "shadow-cljs watch app",
     "shadow:release": "shadow-cljs release app",
+    "test": "shadow-cljs compile test",
     "postcss:build": "cross-env TAILWIND_MODE=build postcss src/css/tailwind.css -o ./public/css/main.css --verbose",
     "postcss:watch": "cross-env TAILWIND_MODE=watch postcss src/css/tailwind.css -o ./public/css/main.css --verbose -w",
     "postcss:release": "cross-env NODE_ENV=production postcss src/css/tailwind.css -o ./public/css/main.css --verbose",
