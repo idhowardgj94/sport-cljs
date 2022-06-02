@@ -1,25 +1,27 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
-            [cljss.core :refer-macros [defstyles]]
             [sports.firebase :refer [init-app]]
-            [sports.components.login.index :refer [login]]))
+            [sports.components.login.index :refer [login]]
+            [sports.state :refer [store]]))
 
-(defstyles card-center
-  []
-  {:height "100vh"
-   :justify-contents "center"
-   :align-items "center"})
+(def t {:auth? nil})
 
 (defn app
   []
-  [:div.xl:container.mx-auto.px-4.flex {:class (card-center)}
-   (login)])
+  (if-let  [auth? (get @store :auth?)]
+    (do
+      (js/console.log "watch wtach see: " auth?)
+      [:button.p-2.bg-blue-400.text-white
+       {:on-click #(do (js/console.log auth?)
+                       (swap! store assoc :auth? false))} "hello"])
+    
+    (login)))
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
   (init-app)
   (dom/render [app]
-    (.getElementById js/document "app")))
+              (.getElementById js/document "app")))
 
 (defn init []
   ;; init is called ONCE when the page loads
