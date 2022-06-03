@@ -1,6 +1,6 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
-            [sports.firebase :refer [init-app]]
+            [sports.firebase.setup :refer [init-app]]
             [sports.components.login.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
             [sports.state :refer [store]]))
