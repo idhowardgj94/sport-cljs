@@ -2,20 +2,14 @@
   (:require [reagent.dom :as dom]
             [sports.firebase :refer [init-app]]
             [sports.components.login.index :refer [login]]
+            [sports.components.main-page.index :refer [main-page]]
             [sports.state :refer [store]]))
-
-(def t {:auth? nil})
 
 (defn app
   []
-  (if-let  [auth? (get @store :auth?)]
-    (do
-      (js/console.log "watch wtach see: " auth?)
-      [:button.p-2.bg-blue-400.text-white
-       {:on-click #(do (js/console.log auth?)
-                       (swap! store assoc :auth? false))} "hello"])
-    
-    (login)))
+  ;; (if (get @store :auth?)
+    (main-page))
+    ;;(login)))
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []

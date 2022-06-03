@@ -6,18 +6,16 @@
                      [sports.state :as s :refer [store]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
-  ;;  [cljs.core.async :refer [go]]
-  ;;  [cljs.core.async.interop :refer-macros [<p!]]))
-
-;; :apiKey "AIzaSyBPARs63a-_ed_Kl6M61H1b-c_YILiKJEc"
-;; (defonce app (atom nil))
-;; (defonce user (atom nil))
+;; Note: for debug use
+(defonce init (atom false))
 (defonce config (firebase-config))
 (defn init-app
   ([]
    (swap! store assoc :app (initializeApp (clj->js config)))
    (let [auth (getAuth (get @store :app))]
-     (connectAuthEmulator auth "http://localhost:9099")))
+     (when-not true @init
+               (connectAuthEmulator auth "http://localhost:9099")
+               (reset! init true))))
   ([config]
    (swap! store assoc :app (initializeApp (clj->js config)))
    (getAuth (get @store :app))))

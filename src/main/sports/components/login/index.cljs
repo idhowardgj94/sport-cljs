@@ -28,7 +28,7 @@
       [:input.appearance-none.ml-4.my-2 {:type "text" :name "account" :placeholder "please input account"}]]
      [:div [:label {:for "password"} "Password"]
       [:input.appearance-none.ml-4.my-2 {:name "password" :type "password" :placeholder "please input password"}]]
-     (if-let [msg (get @store :validate-msg)] [:p.text-red-500 msg])
+     (when-let [msg (get @store :validate-msg)] [:p.text-red-500 msg])
      [:button.bg-blue-700.p-2.text-white.hover:bg-blue-500.rounded
       {:type "submit"
        :on-click #(do (.preventDefault %)
