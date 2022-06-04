@@ -2,8 +2,7 @@
   (:require
    ["regenerator-runtime/runtime"]
    ["firebase/auth" :as auth
-    :refer [getAuth connectAuthEmulator signInWithEmailAndPassword createUserWithEmailAndPassword]]
-   ["firebase/app" :as firebase-app :refer [initializeApp]]
+    :refer [getAuth signInWithEmailAndPassword createUserWithEmailAndPassword]]
    [sports.state :as s :refer [store]]))
 
 (defn- get-auth
