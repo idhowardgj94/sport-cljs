@@ -22,9 +22,9 @@
    (let [auth (getAuth (get @store :app))
          database (getDatabase (get @store :app))]
      (when-not @init
-       (js/console.log "DEBUG yo")
-       (connectAuthEmulator auth "http://localhost:9099")
-       (connectDatabaseEmulator database "localhost" 9000)
+      ;;  (connectAuthEmulator auth "http://localhost:9099")
+      ;;  (connectDatabaseEmulator database "localhost" 9000)
+       (print "init app done")
        (reset! init true))))
   ([config]
    (swap! store assoc :app (initializeApp (clj->js config)))

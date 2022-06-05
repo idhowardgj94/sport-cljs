@@ -20,8 +20,9 @@
 (def unit-kg "kg")
 (def unit-lbs "lbs")
 ;; not a good solution.
+
 (defn- get-date-format
-  "convert js Date format to YYYY-MM-DD"q
+  "convert js Date format to YYYY-MM-DD"
   [d]
   (.format date d "YYYY-MM-DD"))
 
@@ -41,16 +42,28 @@
 (defn insert-training-group
   "insert train group"
   [group-name train-name]
-  (-> (ref (get-database) (str "training/groups/" (random-uuid)))
-      (set (clj->js {:groupName group-name
+  (-> (ref (get-database) (str "/training/groups"))
+      (database/push)
+      (set (clj->js {
+                     :groupName group-name
                      :trainName train-name}))))
 
+(init-app)
 (insert-training-group "胸" "啞鈴上胸")
-
+(insert-training-group "胸" "槓鈴平胸")
+(insert-training-group "胸" "槓鈴下胸")
+(insert-training-group "背" "滑輪機划船")
 (defn get-chest-test
   []
-  (let [db (ref (get-database) "training/groups")]
-    (query db (orderByChild "groupName"))))
+  (let [db (ref (get-database) "/training/groups")]
+    (-> (query db  (orderByChild "groupName") (equalTo "胸")))))
+
+(-> (get-chest-test)
+    (database/get)
+    (.then #(do (js/console.log (.val %))
+                ))
+    (.catch #(js/console.log %)))
+
 
 (-> (get-chest-test)
     (database/get)
