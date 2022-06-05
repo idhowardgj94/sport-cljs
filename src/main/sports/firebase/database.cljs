@@ -16,6 +16,7 @@
 
 (-> (collection (get-firestore) "users")
     (query (where "first" "==" "Ada"))
+    (getDocs)
     (.then #(do (js/console.log %)
                 (-> %
                     (.forEach (fn [d] (js/console.log (.data d))))))))
