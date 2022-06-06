@@ -1,8 +1,8 @@
 (ns sports.components.login.index
-  (:require [reagent.core :as r]
-            [cljss.core :refer-macros [defstyles]]
-            [sports.components.login.api :as a :refer [login?]]
-            [sports.state :refer [store]]))
+  (:require
+   [cljss.core :refer-macros [defstyles]]
+   [sports.components.login.api :as a :refer [login?]]
+   [sports.state :refer [store]]))
 
 (defstyles card-center
   []
@@ -19,7 +19,8 @@
       (aget name)
       (.-value)))
 
-(defn login []
+(defn login [match]
+  (js/console.log (clj->js match))
   [:div.xl:container.mx-auto.px-4.flex {:class (card-center)}
    [:div.max-w-xl.rounded.shadow-lg.mx-auto.flex-1
     [:h1.text-3xl.text-center "Login"]

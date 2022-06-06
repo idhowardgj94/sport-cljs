@@ -1,5 +1,7 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
+            [reagent.core :as r]
+            [sports.route :refer [init! routes match]]
             [sports.firebase.setup :refer [init-app]]
             [sports.components.login.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
@@ -7,13 +9,19 @@
 
 (defn app
   []
+[:div
+ (if @match
+   (let [view (:view (:data @match))]
+     (view @match))
+   "Not found")])
   ;; (if (get @store :auth?)
-    (main-page))
+    ;; (main-page))
     ;;(login)))
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
   (init-app)
+  (init!)
   (dom/render [app]
               (.getElementById js/document "app")))
 
