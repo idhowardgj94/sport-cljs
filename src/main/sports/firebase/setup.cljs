@@ -6,7 +6,8 @@
    ["firebase/auth" :as auth
     :refer [getAuth connectAuthEmulator]]
    ["firebase/app" :as firebase-app :refer [initializeApp]]
-   [sports.state :as s :refer [store]])
+   [sports.state :as s :refer [store]]
+   [sports.firebase.auth :refer [setup-auth-listener]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
 ;; Note: for debug use
@@ -27,6 +28,7 @@
        (connectAuthEmulator auth "http://localhost:9099")
        (connectDatabaseEmulator database "localhost" 9000)
        (connectFirestoreEmulator firestore "localhost" 8080)
+       (setup-auth-listener)
        (print "init app done")
        (reset! init true))))
   ([config]

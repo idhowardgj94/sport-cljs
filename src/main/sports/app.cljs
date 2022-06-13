@@ -8,20 +8,17 @@
             [sports.state :refer [store]]))
 
 (defn app
-  []
-[:div
- (if @match
-   (let [view (:view (:data @match))]
-     (view @match))
-   "Not found")])
-  ;; (if (get @store :auth?)
-    ;; (main-page))
-    ;;(login)))
+  [] 
+  [:div
+   (if @match
+     (let [view (:view (:data @match))]
+       [view @match])
+     "Not found")])
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
-  (init-app)
   (init!)
+  (init-app) 
   (dom/render [app]
               (.getElementById js/document "app")))
 
