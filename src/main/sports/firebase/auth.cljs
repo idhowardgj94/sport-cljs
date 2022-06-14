@@ -23,6 +23,7 @@
   []
   (js/console.log "inside set-rememberme")
   (setPersistence (get-auth) browserLocalPersistence))
+
 (defn create-user
   "create user with email and password"
   [email password]

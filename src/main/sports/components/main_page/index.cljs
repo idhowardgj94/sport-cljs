@@ -1,8 +1,8 @@
 (ns sports.components.main-page.index
-  (:require
-   [reagent.core :as r]
-   [cljss.core :refer-macros [defstyles]]
-   [sports.state :refer [store]]))
+  (:require [cljss.core :refer-macros [defstyles]]
+            [sports.tools.route :refer [match-sub-path]]
+            [clojure.string :refer [join]]
+            [reitit.frontend :as rf]))
 
 (defstyles deck
   []
@@ -10,6 +10,7 @@
    :width "100vw"
    :height "100px"
    :bottom "0px"})
+
 (defstyles content
   []
   {:position "relative"
@@ -18,9 +19,10 @@
    :overflow "scroll"})
 
 (defn content-view
-  []
-  [:div.my-4 {:class [(content)]}
-   [:h1.container.bg-yellow-100.mx-auto.text-6xl.text-center.my-4 "main page"]])
+  [match]
+  (let [view (:view (:data match))]
+    [:div.my-4 {:class [(content)]}
+     [view match]]))
 
 (defn deck-view
   []
@@ -29,6 +31,6 @@
 
 (defn main-page
   "This is the main page after login"
-  []
-  [:div (content-view) (deck-view)])
-
+  [match]
+  (let [sub-match (match-sub-path match)] 
+    [:div [content-view sub-match] [deck-view]]))
