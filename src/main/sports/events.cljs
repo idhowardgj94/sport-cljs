@@ -1,15 +1,7 @@
 (ns sports.events
-  (:require [sports.db :as db]))
-
-(defn login
-  []
-  (swap! db/state assoc :auth? true))
-
-(defn logout
-  []
-  (swap! db/state assoc :auth? false))
-
-(defn toggle-user-dropdown
-  []
-  (let [dropdown (:user-dropdown? @db/state)]
-    (swap! db/state assoc :user-dropdown? (not dropdown))))
+  (:require [sports.state :refer [store]]))
+;; refactor: event out
+(defn login-event
+  [u]
+  (swap! store assoc :user (.-user u))
+  (swap! store assoc :auth? true))

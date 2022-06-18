@@ -8,7 +8,7 @@
   []
   {:position "fixed"
    :width "100vw"
-   :height "100px"
+   :height "50px"
    :bottom "0px"})
 
 (defstyles content
@@ -21,13 +21,13 @@
 (defn content-view
   [match]
   (let [view (:view (:data match))]
-    [:div.my-4 {:class [(content)]}
+    [:div {:class [(content)]}
      [view match]]))
 
 (defn deck-view
   []
   [:div.shadow-inner.flex.justify-center.items-center.bg-violet-100 {:class (deck)}
-   [:button.bg-violet-100.hover:bg-violet-200.p-4.outline-none.shadow-none.appearance-none.border-none [:i.fa-solid.fa-house.fa-4x]]])
+   [:button.bg-violet-100.hover:bg-violet-200.p-4.outline-none.shadow-none.appearance-none.border-none [:i.fa-solid.fa-house]]])
 
 (defn main-page
   "This is the main page after login"
