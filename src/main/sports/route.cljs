@@ -5,7 +5,7 @@
             [reitit.coercion.spec :as rss]
             [spec-tools.data-spec :as ds]
             [sports.state :refer [store]]
-            [sports.components.record-exercise.index :refer [record-form-page record-exercise-page]]
+            [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
             [sports.components.login.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]))
 
@@ -37,7 +37,10 @@
     {:name :main-page
      :parameters {:path {:page-name string?}}
      :router (new-router
-              [["/record" 
+              [["/choose-exercise"
+                {:name :choose-exercise
+                 :view choose-exercise-page}]
+               ["/record" 
                 {:name :record
                  :view record-exercise-page}]
                ["/record-form"

@@ -1,7 +1,6 @@
 (ns sports.firebase.database
   (:require
    ["regenerator-runtime/runtime"]
-   [sports.firebase.setup :refer [init-app]]
    ["firebase/firestore" :as firestore :refer [collection addDoc getDocs getFirestore where query]]))
 
 (defn get-firestore
