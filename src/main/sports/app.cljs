@@ -1,11 +1,10 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
-            [reagent.core :as r]
-            [sports.route :refer [init! routes match]]
-            [sports.firebase.setup :refer [init-app]]
-            [sports.components.login.index :refer [login]]
-            [sports.components.main-page.index :refer [main-page]]
-            [sports.state :refer [store]]))
+            [sports.route :refer [init! match]]
+            [sports.firebase.setup :refer [init-app]])
+  (:require-macros [sports.config :refer [firebase-config]]))
+
+(defonce config (firebase-config))
 
 (defn app
   [] 
@@ -18,7 +17,7 @@
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
   (init!)
-  (init-app) 
+  (init-app config)
   (dom/render [app]
               (.getElementById js/document "app")))
 

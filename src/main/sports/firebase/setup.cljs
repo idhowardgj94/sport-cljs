@@ -34,7 +34,13 @@
        (reset! init true))))
   ([config]
    (swap! store assoc :app (initializeApp (clj->js config)))
-   (getAuth (get @store :app))))
+   (when-not @init
+     (getAuth (get-app store))
+     (getDatabase (get-app store))
+     (getFirestore (get-app store))
+     (setup-auth-listener)
+     (print "init app done")
+     (reset! init true))))
 
 
 #_((init-app)
