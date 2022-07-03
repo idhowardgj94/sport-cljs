@@ -2,13 +2,13 @@
   (:require [sports.firebase.auth :refer [login set-rememberme]]
             [sports.state :refer [store]]
             [reitit.frontend.easy :as rfe]
-            [sports.events :refer [login-event]]))
+            [sports.events :refer [login-event!]]))
 
 (defn- login-action
   "perform login action"
   [account password]
   (login account password
-         #(do (login-event %)
+         #(do (login-event! %)
               (js/console.log (clj->js @store))
               (js/console.log "inside then")
               (rfe/push-state :index))))

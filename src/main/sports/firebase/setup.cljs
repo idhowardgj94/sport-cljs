@@ -20,6 +20,7 @@
 
 (defn init-app
   ([]
+   (print "inside init-app")
    (swap! store assoc :app (initializeApp (clj->js config)))
    (let [auth (getAuth (get-app store))
          database (getDatabase (get-app store))

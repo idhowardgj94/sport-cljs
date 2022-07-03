@@ -1,6 +1,7 @@
 (ns sports.components.main-page.index
   (:require [cljss.core :refer-macros [defstyles]]
             [sports.tools.route :refer [match-sub-path]]
+            [sports.state :refer [store]]
             [clojure.string :refer [join]]
             [reitit.frontend :as rf]))
 
@@ -32,5 +33,6 @@
 (defn main-page
   "This is the main page after login"
   [match]
-  (let [sub-match (match-sub-path match)] 
+  (js/console.log (clj->js @store))
+  (let [sub-match (match-sub-path match)]
     [:div [content-view sub-match] [deck-view]]))
