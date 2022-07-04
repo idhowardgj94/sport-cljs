@@ -9,6 +9,16 @@
  {:app
   {:target :browser
    :output-dir "public/js"
+   :closure-defines {sports.app/ENV "production"}
+   :asset-path "/js"
+   :js-options {:babel-preset-config {:targets {:chrome 80}}}
+   :modules
+   {:main
+    {:init-fn sports.app/init}}}
+  :dev
+  {:target :browser
+   :closure-defines {sports.app/ENV "development"}
+   :output-dir "public/js"
    :asset-path "/js"
    :js-options {:babel-preset-config {:targets {:chrome 80}}}
    :modules
