@@ -5,8 +5,7 @@
    [reitit.frontend.easy :as rfe]
    [cljss.core :refer-macros [defstyles]]
    [sports.models.exercise :refer [group]]
-   [sports.components.record-exercise.event :refer [record-change-event!]]
-   [sports.components.record-exercise.api :refer [add-exercise-record!]]))
+   [sports.components.record-exercise.api :refer [add-exercise-record! get-exercises-by-date delete-exercise-by-id!]]))
 
 (def exercise-meta (r/atom {:group "" :exercise ""}))
 
@@ -81,19 +80,29 @@
       (aget name)
       (.-value)))
 
+(defn- get-form-by-id
+  [id]
+  (-> js/document
+      (.getElementById id)
+      (.-value)))
+
 (defn submit-record-handler
   "records: r/atom"
   [e records]
-  (.preventDefault e)
+  (.preventDefault e) 
+  (js/console.log "inside submit handler")
+  (js/console.log (get-form-by-id "date"))
+
   (let [repeat (get-form-by-name e "repeat")
-        data (conj @exercise-meta {:repeat repeat :id (str (random-uuid))})]
+        data (conj @exercise-meta {:repeat repeat :id (str (random-uuid)) :date (get-form-by-id "date")})]
     (js/console.log "inside submit handler")
     (js/console.log repeat)
     (add-exercise-record! data)
     (swap! records #(concat % (vector data)))))
 
 (defn delete-handler!
-  [records it] 
+  [records it]
+  (delete-exercise-by-id! (:id it))
   (reset! records (->> @records
                        (filter #(not= (:id %) (:id it))))))
 
@@ -101,11 +110,12 @@
 (defn record-form-page
   "record exercise form"
   [match]
-  (js/console.log "outside let")
   (let [name (:name (:query-params match))
-        records (r/atom [])] 
+        records (r/atom [])
+        date (get-today)] 
     (r/create-class
-     {:component-did-mount (fn [] (add-watch records :change-event record-change-event!))
+     {:component-did-mount (fn [] (-> (get-exercises-by-date date name) 
+                                      (.then #(reset! records (js->clj % :keywordize-keys true)))))
       :component-will-unmount (fn [] (remove-watch records :change-event)) 
       :reagent-render (fn [] [:div.container
             [head name]
@@ -113,7 +123,8 @@
              [:form.mb-4
               [:section.flex.flex-row.mb-2
                [:div.font-bold.text-lg.ml-2.flex-1 "Date"]
-               [:div.ml-4.flex-1 (get-today)]]
+               [:div.ml-4.flex-1 date]
+               [:input {:type "hidden" :id "date" :name "date" :value date}]]
               [:section.flex.flex-row
                [:label.font-bold.text-lg.ml-2.flex-1 {:for "repeat"} "Repeat"]
                [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]

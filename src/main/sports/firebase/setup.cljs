@@ -6,6 +6,7 @@
    ["firebase/auth" :as auth
     :refer [getAuth connectAuthEmulator]]
    ["firebase/app" :as firebase-app :refer [initializeApp]]
+   [reitit.frontend.easy :as rfe] 
    [sports.state :as s :refer [store]]
    [sports.firebase.auth :refer [setup-auth-listener]])
   (:require-macros [sports.config :refer [firebase-config]]))
@@ -30,6 +31,7 @@
        (connectDatabaseEmulator database "localhost" 9000)
        (connectFirestoreEmulator firestore "localhost" 8080)
        (setup-auth-listener)
+       (rfe/push-state :index)
        (print "init app done")
        (reset! init true))))
   ([config]
@@ -40,6 +42,7 @@
      (getFirestore (get-app store))
      (setup-auth-listener)
      (print "init app done")
+     (rfe/push-state :index)
      (reset! init true))))
 
 

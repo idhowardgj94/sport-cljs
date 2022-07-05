@@ -18,11 +18,10 @@
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
   (init!)
-  (js/console.log ENV)
   (if (= ENV "development")
     (do (js/console.log "[DEBUG] use development mode. connect to local emulator.") (init-app))
     (do (js/console.log "use production mode") (init-app config)))
-
+  
   (dom/render [app]
               (.getElementById js/document "app")))
 

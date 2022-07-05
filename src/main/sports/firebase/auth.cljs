@@ -70,5 +70,4 @@
                      (swap! store assoc :auth? true))
                  (do (js/console.log "insisde listener else")
                      (swap! store assoc :user nil)
-                     (swap! store assoc :auth? false)))
-                 (rfe/push-state :index))))
+                     (swap! store assoc :auth? false))))))

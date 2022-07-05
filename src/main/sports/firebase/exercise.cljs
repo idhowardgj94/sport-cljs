@@ -1,7 +1,8 @@
 (ns sports.firebase.exercise
   (:require
    ["regenerator-runtime/runtime"]
-   ["firebase/firestore" :as firestore :refer [setDoc doc collection addDoc getDocs getFirestore where query]]))
+   [sports.firebase.setup :refer [init-app]]
+   ["firebase/firestore" :as firestore :refer [setDoc doc collection addDoc getDocs getFirestore getDoc where query deleteDoc]]))
 
 (defn get-firestore
   "getFirestore wrapper"
@@ -12,5 +13,24 @@
 (defn add-exercise!
   [data uid]
   (js/console.log "add to db")
-  (-> (doc (get-firestore) "records" (:id data))
+  (-> (doc (get-firestore) "records" "user" uid (:id data))
       (setDoc (clj->js (assoc data :uid uid)))))
+
+(defn get-exercise
+  [uid date name]
+  (let [docRef (collection (get-firestore) "records" "user" uid)
+        query (query docRef (where "date" "==" date) (where "exercise" "==" name))]
+    (-> (getDocs query)
+        (.then (fn [data]
+                  (-> (.-docs data)
+                      (.map #(.data %)))))
+        (.catch #(do (js/console.log %))))))
+
+(defn delete-exercise!
+  [uid id]
+  (let [docRef (doc (get-firestore) "records" "user" uid id)]
+    (deleteDoc docRef)))
+
+(comment
+  (init-app)
+  )
