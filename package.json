@@ -8,7 +8,8 @@
     "postcss:watch": "cross-env TAILWIND_MODE=watch postcss src/css/tailwind.scss -o ./public/css/main.css --verbose -w",
     "postcss:release": "cross-env NODE_ENV=production postcss src/css/tailwind.scss -o ./public/css/main.css --verbose",
     "dev": "run-p -l *:watch",
-    "release": "run-s *:release"
+    "release": "run-s *:release",
+    "deploy": "firebase deploy"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",
