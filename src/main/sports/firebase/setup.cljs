@@ -19,6 +19,7 @@
   [store]
   (get @store :app))
 
+;; TODO: redundant code
 (defn init-app
   ([]
    (print "inside init-app")
