@@ -62,7 +62,7 @@
   "choose exercise"
   [match]
   (let [{:keys [name]} (:query-params match)]
-    [:div
+    [:div.container
      [head name]
      [:div.mt-2
       (for [exercise (get-exercises name)]

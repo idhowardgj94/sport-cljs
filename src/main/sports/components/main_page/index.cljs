@@ -8,7 +8,7 @@
 (defstyles deck
   []
   {:position "fixed"
-   :width "100vw"
+   :width "100%"
    :height "50px"
    :bottom "0px"})
 
@@ -27,7 +27,7 @@
 
 (defn deck-view
   []
-  [:div.shadow-inner.flex.justify-center.items-center.bg-violet-100 {:class (deck)}
+  [:div.shadow-inner.flex.justify-center.items-center.bg-violet-100.container {:class (deck)}
    [:button.bg-violet-100.hover:bg-violet-200.p-4.outline-none.shadow-none.appearance-none.border-none [:i.fa-solid.fa-house]]])
 
 (defn main-page
@@ -35,4 +35,4 @@
   [match]
   (js/console.log (clj->js @store))
   (let [sub-match (match-sub-path match)]
-    [:div [content-view sub-match] [deck-view]]))
+    [:div.mx-auto.container [content-view sub-match] [deck-view]]))
