@@ -21,10 +21,13 @@
 (defn head
   "define head of record exercise page"
   ([n]
-   [:header.flex.flex-col.justify-center {:class (head-layout)}
+   [:header.flex.flex-row.justify-center {:class (head-layout)}
     [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
      [:button.appearance-none.shadow-none.border-none {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
-     [:p.text-xl.mx-2.py-2 n]]])
+     [:p.text-xl.mx-2.py-2 n]]
+    [:section.bg-red-100.justify-center.items-center.px-4.inline-flex 
+     [:button.appearance-none.shadow-none.border-none {:on-click #(. js/console log "hello, world")}
+     [:i.my-auto.fa-regular.fa-calendar.fa-xl]] ]])
   ([]
    (head (str  "Today is " (get-today)))))
 
@@ -127,7 +130,8 @@
                [:input {:type "hidden" :id "date" :name "date" :value date}]]
               [:section.flex.flex-row
                [:label.font-bold.text-lg.ml-2.flex-1 {:for "repeat"} "Repeat"]
-               [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]
+               [:div.flex-1
+                [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]]
               [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
                {:on-click #(submit-record-handler % records)
                 :type "submit"} "Submit"]]]
