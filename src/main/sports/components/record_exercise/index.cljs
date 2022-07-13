@@ -1,6 +1,7 @@
 (ns sports.components.record-exercise.index
   (:require
    ["date-fns" :as _]
+   ["../../../vender/date-picker$default" :as DatePicker]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]
    [cljss.core :refer-macros [defstyles]]
@@ -117,14 +118,17 @@
         records (r/atom [])
         date (get-today)] 
     (r/create-class
-     {:component-did-mount (fn [] (-> (get-exercises-by-date date name) 
-                                      (.then #(reset! records (js->clj % :keywordize-keys true)))))
+     {:component-did-mount (fn []
+                             (js/console.log DatePicker)
+                             (-> (get-exercises-by-date date name)
+                                 (.then #(reset! records (js->clj % :keywordize-keys true)))))
       :component-will-unmount (fn [] (remove-watch records :change-event)) 
       :reagent-render (fn [] [:div.container
             [head name]
             [:div.py-4.rounded.shadow-sm
              [:form.mb-4
               [:section.flex.flex-row.mb-2
+               [:> DatePicker {:onChange #(js/console.log "inside onchange" :value "")}]
                [:div.font-bold.text-lg.ml-2.flex-1 "Date"]
                [:div.ml-4.flex-1 date]
                [:input {:type "hidden" :id "date" :name "date" :value date}]]
