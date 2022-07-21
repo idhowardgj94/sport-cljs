@@ -3,3 +3,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.react-date-picker__wrapper {
+  display: none !important;
+}

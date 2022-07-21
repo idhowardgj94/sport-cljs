@@ -8,7 +8,9 @@
    [sports.models.exercise :refer [group]]
    [sports.components.record-exercise.api :refer [add-exercise-record! get-exercises-by-date delete-exercise-by-id!]]))
 
-(def exercise-meta (r/atom {:group "" :exercise ""}))
+(defonce exercise-meta (r/atom {:group "" :exercise ""}))
+(defonce choose-date (r/atom {:show false :date (js/Date.)}))
+(defonce records (r/atom []))
 
 (defstyles head-layout
   []
@@ -19,6 +21,10 @@
   []
   (.format _ (js/Date.) "yyyy-MM-dd"))
 
+(defn get-date-format
+  [d]
+  (.format _ d "yyy-MM-dd"))
+
 (defn head
   "define head of record exercise page"
   ([n]
@@ -26,9 +32,13 @@
     [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
      [:button.appearance-none.shadow-none.border-none {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
      [:p.text-xl.mx-2.py-2 n]]
-    [:section.bg-red-100.justify-center.items-center.px-4.inline-flex 
-     [:button.appearance-none.shadow-none.border-none {:on-click #(. js/console log "hello, world")}
-     [:i.my-auto.fa-regular.fa-calendar.fa-xl]] ]])
+    [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
+     [:button.appearance-none.shadow-none.border-none {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
+      [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
+     [:span {:style {:display "block"}} [:> DatePicker
+                                         {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
+                                          :value (:date @choose-date) :isOpen (:show @choose-date)
+                                          :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}]]]])
   ([]
    (head (str  "Today is " (get-today)))))
 
@@ -58,7 +68,6 @@
 
 (defn click-record-handler!
   [name]
-  (js/console.log "click-record-handler")
   (swap! exercise-meta #(assoc % :exercise name))
   (rfe/push-state :main-page {:page-name "record-form"} {:name name}))
 
@@ -93,14 +102,10 @@
 (defn submit-record-handler
   "records: r/atom"
   [e records]
-  (.preventDefault e) 
-  (js/console.log "inside submit handler")
-  (js/console.log (get-form-by-id "date"))
+  (.preventDefault e)
 
   (let [repeat (get-form-by-name e "repeat")
         data (conj @exercise-meta {:repeat repeat :id (str (random-uuid)) :date (get-form-by-id "date")})]
-    (js/console.log "inside submit handler")
-    (js/console.log repeat)
     (add-exercise-record! data)
     (swap! records #(concat % (vector data)))))
 
@@ -110,41 +115,45 @@
   (reset! records (->> @records
                        (filter #(not= (:id %) (:id it))))))
 
-
 (defn record-form-page
   "record exercise form"
   [match]
   (let [name (:name (:query-params match))
-        records (r/atom [])
-        date (get-today)] 
+        get-date #(:date @choose-date)
+        get-record-handler (fn [date] (-> (get-exercises-by-date date name)
+                                      (.then #(do (reset! records (js->clj % :keywordize-keys true))))))]
+;; (:date (nth args 3)) 
     (r/create-class
      {:component-did-mount (fn []
-                             (js/console.log DatePicker)
-                             (-> (get-exercises-by-date date name)
-                                 (.then #(reset! records (js->clj % :keywordize-keys true)))))
-      :component-will-unmount (fn [] (remove-watch records :change-event)) 
-      :reagent-render (fn [] [:div.container
-            [head name]
-            [:div.py-4.rounded.shadow-sm
-             [:form.mb-4
-              [:section.flex.flex-row.mb-2
-               [:> DatePicker {:onChange #(js/console.log "inside onchange" :value "")}]
-               [:div.font-bold.text-lg.ml-2.flex-1 "Date"]
-               [:div.ml-4.flex-1 date]
-               [:input {:type "hidden" :id "date" :name "date" :value date}]]
-              [:section.flex.flex-row
-               [:label.font-bold.text-lg.ml-2.flex-1 {:for "repeat"} "Repeat"]
-               [:div.flex-1
-                [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]]
-              [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
-               {:on-click #(submit-record-handler % records)
-                :type "submit"} "Submit"]]]
-            [:section
-             [:div.text-lg.text-center.font-medium.p-2.bg-blue-100 "Records"]
-             [:div
-              (for [it (map-indexed vector @records)]
-                ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                                    [:div.flex-1 (str "Set " (+ 1 (first it)))]
-                                    [:div.flex-1  (str (:repeat (last it)) "KG")]
-                                    [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
-                                     {:on-click #(delete-handler! records (last it))} "Delete"]])]]])})))
+                             (add-watch choose-date :choose-by-date
+                                        (fn [& args]
+                                          (when (= (:date (nth args 3)) (:date (nth args 2)))
+                                            (get-record-handler (get-date-format (:date (nth args 3)))))))
+                             (get-record-handler (get-date-format (:date @choose-date))))
+
+      :component-will-unmount (fn [] (remove-watch choose-date :choose-by-date))
+      :reagent-render (fn []
+                        [:div.container
+                         [head name]
+                         [:div.py-4.rounded.shadow-sm
+                          [:form.mb-4
+                           [:section.flex.flex-row.mb-2
+                            [:div.font-bold.text-lg.ml-2.flex-1 "Date"]
+                            [:div.ml-4.flex-1 (get-date-format (get-date))]
+                            [:input {:type "hidden" :id "date" :name "date" :value (get-date-format (get-date))}]]
+                           [:section.flex.flex-row
+                            [:label.font-bold.text-lg.ml-2.flex-1 {:for "repeat"} "Repeat"]
+                            [:div.flex-1
+                             [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]]
+                           [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
+                            {:on-click #(submit-record-handler % records)
+                             :type "submit"} "Submit"]]]
+                         [:section
+                          [:div.text-lg.text-center.font-medium.p-2.bg-blue-100 "Records"]
+                          [:div
+                           (for [it (map-indexed vector @records)]
+                             ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                 [:div.flex-1 (str "Set " (+ 1 (first it)))]
+                                                 [:div.flex-1  (str (:repeat (last it)) "KG")]
+                                                 [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
+                                                  {:on-click #(delete-handler! records (last it))} "Delete"]])]]])})))
