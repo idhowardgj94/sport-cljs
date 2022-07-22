@@ -5,11 +5,12 @@ import replace from '@rollup/plugin-replace';
 import image from '@rollup/plugin-image';
 import postcss from 'rollup-plugin-postcss';
 import path from 'path';
+import { terser } from "rollup-plugin-terser";
 
 export default {
   input: path.resolve(__dirname, "./index.js"),
   output: {
-    file: "src/main/vender/date-picker.js",
+    file: "src/main/vendor/date-picker.js",
     format: "esm",
     sourcemap: true,
   },
@@ -28,6 +29,7 @@ export default {
     babel({
       presets: ["@babel/preset-react"],
     }),
+    terser(),
     commonjs(),
   ]
 };

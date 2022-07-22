@@ -4,7 +4,7 @@ node_modules
 .cpcache
 .clj-kondo/.cache
 .calva
-vender
+vendor
 public/css
 public/js
 

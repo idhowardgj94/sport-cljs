@@ -10,8 +10,12 @@
   {:target :browser
    :output-dir "public/js"
    :closure-defines {sports.app/ENV "production"}
-   :asset-path "/js"
-   :js-options {:babel-preset-config {:targets {:chrome 80}}}
+   :asset-path "/js" 
+   :js-options {:resolve {"date-picker"
+                          {:target :file
+                           :file "src/main/vendor/date-picker.js"}}}
+   :compiler-options {:output-feature-set :es-next
+                      :infer-externs :auto}
    :modules
    {:main
     {:init-fn sports.app/init}}}

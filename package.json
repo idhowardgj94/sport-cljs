@@ -9,7 +9,8 @@
     "postcss:release": "cross-env NODE_ENV=production postcss src/css/tailwind.scss -o ./public/css/main.css --verbose",
     "dev": "run-p -l *:watch",
     "release": "run-s *:release",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy",
+    "rollup:build": "rollup -c build/rollup/date-picker/rollup.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
@@ -44,6 +45,7 @@
     "react-date-picker": "^8.4.0",
     "react-dom": "17.0.1",
     "regenerator-runtime": "^0.13.9",
-    "rollup": "^2.76.0"
+    "rollup": "^2.76.0",
+    "rollup-plugin-terser": "^7.0.2"
   }
 }

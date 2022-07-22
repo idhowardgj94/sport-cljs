@@ -1,7 +1,7 @@
 (ns sports.components.record-exercise.index
   (:require
    ["date-fns" :as _]
-   ["../../../vender/date-picker$default" :as DatePicker]
+   ["date-picker" :default DatePicker ]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]
    [cljss.core :refer-macros [defstyles]]
@@ -35,7 +35,7 @@
     [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
      [:button.appearance-none.shadow-none.border-none {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
       [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
-     [:span {:style {:display "block"}} [:> DatePicker
+     [:span {:style {:display "block"}} [:> ^js DatePicker
                                          {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
                                           :value (:date @choose-date) :isOpen (:show @choose-date)
                                           :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}]]]])
