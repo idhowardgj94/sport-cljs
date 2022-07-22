@@ -10,7 +10,7 @@
     "dev": "run-p -l *:watch",
     "release": "run-s *:release",
     "deploy": "firebase deploy",
-    "rollup:build": "rollup -c build/rollup/date-picker/rollup.config.js"
+    "rollup:build": "rollup -c build/rollup/rollup.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
