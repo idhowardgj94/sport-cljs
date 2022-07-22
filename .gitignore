@@ -7,7 +7,9 @@ node_modules
 vendor
 public/css
 public/js
-
+public/sprites
+public/svgs
+public/webfonts
 # Logs
 logs
 *.log

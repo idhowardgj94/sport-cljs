@@ -24,7 +24,9 @@
    :closure-defines {sports.app/ENV "development"}
    :output-dir "public/js"
    :asset-path "/js"
-   :js-options {:babel-preset-config {:targets {:chrome 80}}}
+   :js-options {:resolve {"date-picker"
+                          {:target :file
+                           :file "src/main/vendor/date-picker.js"}}}
    :modules
    {:main
     {:init-fn sports.app/init}}}
