@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]))
 
 (def store 
-  (r/atom {:auth? false
+  (r/atom {:auth? nil
            :validate-msg nil
            :app nil
            :user nil}))

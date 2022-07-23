@@ -21,18 +21,9 @@
 
 (defn set-rememberme
   []
+  ;; TODO: give option set remeber or not
   (js/console.log "inside set-rememberme")
   (setPersistence (get-auth) browserLocalPersistence))
-
-(defn create-user
-  "create user with email and password"
-  [email password]
-  (if (connect-auth?)
-    (-> (createUserWithEmailAndPassword (get-auth) email password)
-        (.then #(do (swap! store assoc :user (.-user %))))
-        (.catch #(do (print "catch")
-                     (print "error happened!" (.-code %) (.-message %)))))
-    (connect-error!)))
 
 (defn login
   "login user via email and password"
@@ -48,26 +39,32 @@
   []
   (let [auth (get-auth)
         user (.-currentUser auth)]
-    (if (some? user)
-      (do (js/console.log "inside current user true")
-          (js/console.log user)
-          (swap! store assoc :user (.-user user))
-          (swap! store assoc :auth? true))
-      (do (js/console.log "inside current user false")
-          (swap! store assoc :user nil)
-          (swap! store assoc :auth? false)))
-    (rfe/push-state :index)))
+    (when (some? user)
+      (swap! store assoc :user (.-user user))
+      (swap! store assoc :auth? true))))
 
 ;; an observer to watch if a user is login or not
+;; TODO: to events ?
 (defn setup-auth-listener
   []
   (current-state!)
   (onAuthStateChanged (get-auth)
-    (fn [user] (if (some? user)
-                 (do (js/console.log "inside listener if")
-                     (js/console.log (clj->js user))
-                     (swap! store assoc :user (js->clj user))
-                     (swap! store assoc :auth? true))
-                 (do (js/console.log "insisde listener else")
-                     (swap! store assoc :user nil)
-                     (swap! store assoc :auth? false))))))
+    (fn [user] 
+      (if (some? user)
+        (do ;; TODO: it can abstract to an event
+          (swap! store assoc :user (js->clj user))
+          (swap! store assoc :auth? true))
+        (do ;; TODO: it can abstract to a event
+            (swap! store assoc :user nil)
+            (swap! store assoc :auth? false)))
+      (rfe/push-state :index))))
+
+#_((defn create-user
+     "create user with email and password"
+     [email password]
+     (if (connect-auth?)
+       (-> (createUserWithEmailAndPassword (get-auth) email password)
+           (.then #(do (swap! store assoc :user (.-user %))))
+           (.catch #(do (print "catch")
+                        (print "error happened!" (.-code %) (.-message %)))))
+       (connect-error!))))

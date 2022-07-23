@@ -7,19 +7,21 @@
             [sports.state :refer [store]]
             [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
             [sports.components.login.index :refer [login]]
-            [sports.components.main-page.index :refer [main-page]]))
+            [sports.components.main-page.index :refer [main-page]]
+            [cljs.core.async :refer [go]]
+            [cljs.core.async.interop :refer-macros [<p!]]))
 
 (defonce match (r/atom nil))
 
 (defn auth-p?
   "check if this user login or not"
-  []
-  (js/console.log "inside auth-p?")
-  (if (not= true (:auth? @store))
-    (rfe/push-state :login)
+  [] 
+  (when (= false (:auth? @store))
+    (rfe/push-state :login))
+  (when (= true (:auth? @store))
     ;; TODO: can :page-name string be changed to :page-name :name?
     (rfe/push-state :main-page {:page-name :record}))
-  [:div (str "loading..." (:data @match))])
+  [:div (str "loading...")])
 
 
 (defn- new-router

@@ -33,6 +33,5 @@
 (defn main-page
   "This is the main page after login"
   [match]
-  (js/console.log (clj->js @store))
   (let [sub-match (match-sub-path match)]
     [:div.mx-auto.container [content-view sub-match] [deck-view]]))

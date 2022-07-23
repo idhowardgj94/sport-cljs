@@ -19,8 +19,10 @@
 (defn ^:dev/after-load start []
   (init!)
   (if (= ENV "development")
-    (do (js/console.log "[DEBUG] use development mode. connect to local emulator.") (init-app))
-    (do (js/console.log "use production mode") (init-app config)))
+    (do (js/console.log "[DEBUG] use development mode. connect to local emulator.") 
+        (init-app))
+    (do (js/console.log "use production mode") 
+        (init-app config)))
   
   (dom/render [app]
               (.getElementById js/document "app")))
@@ -29,7 +31,6 @@
   ;; init is called ONCE when the page loads
   ;; this is called in the index.html and must be exported
   ;; so it is available even in :advanced release builds
-  (js/console.log "init")
   (start))
 
 ;; this is called before any code is reloaded

@@ -33,7 +33,6 @@
        (connectFirestoreEmulator firestore "localhost" 8080)
        (setup-auth-listener)
        (rfe/push-state :index)
-       (print "init app done")
        (reset! init true))))
   ([config]
    (swap! store assoc :app (initializeApp (clj->js config)))
@@ -42,7 +41,6 @@
      (getDatabase (get-app store))
      (getFirestore (get-app store))
      (setup-auth-listener)
-     (print "init app done")
      (rfe/push-state :index)
      (reset! init true))))
 
