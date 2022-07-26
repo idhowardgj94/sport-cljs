@@ -21,7 +21,7 @@
       (.-value)))
 
 (defn login [_]
-  (let [auth? (:auth @store)]
+  (let [auth? (:auth? @store)] 
     (when (nil? auth?) (rfe/replace-state :index)))
   
   [:div.xl:container.mx-auto.px-4.flex {:class (card-center)}

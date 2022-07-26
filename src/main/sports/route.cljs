@@ -16,7 +16,7 @@
 (defn auth-p?
   "check if this user login or not"
   [] 
-  (when (= false (:auth? @store))
+  (when (= false (:auth? @store)) 
     (rfe/push-state :login))
   (when (= true (:auth? @store))
     ;; TODO: can :page-name string be changed to :page-name :name?
