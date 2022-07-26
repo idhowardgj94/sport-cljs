@@ -1,0 +1,31 @@
+*Emacs Note*
+
+ok, lets play something nice....
+
+
+** TODO Setup emacs + cider environment.
+
+  - [X] try to open project in emacs.
+  - [ ] run cider in emacs.
+  - [ ] familar cider + emacs + cljs workflow.
+  - [ ] Add new feature to Sports App
+
+
+ ** Note.
+
+ 0726, 使用起來像智障一樣…
+
+Basic develop step:
+
+1. start by yarn:
+
+   ```bash
+   yarn start
+   ```
+2. open clj/cljs project and connect in (can't use jack-in, although it looks pretty good.)
+
+   `M-x` cider-connect-cljs
+
+3. choose default to connect to running server (may need to install `cider-middleware`)
+
+   
