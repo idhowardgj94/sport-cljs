@@ -105,7 +105,8 @@
   (.preventDefault e)
 
   (let [repeat (get-form-by-name e "repeat")
-        data (conj @exercise-meta {:repeat repeat :id (str (random-uuid)) :date (get-form-by-id "date")})]
+        weight (get-form-by-name e "weight")
+        data (conj @exercise-meta {:weight weight :repeat repeat :id (str (random-uuid)) :date (get-form-by-id "date")})]
     (add-exercise-record! data)
     (swap! records #(concat % (vector data)))))
 
@@ -142,9 +143,13 @@
                             [:div.ml-4.flex-1 (get-date-format (get-date))]
                             [:input {:type "hidden" :id "date" :name "date" :value (get-date-format (get-date))}]]
                            [:section.flex.flex-row
+                            [:label.font-bold.text-lg.ml-2.flex-1 {:for "weight"} "Weight"]
+                            [:div.flex-1
+                             [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "weight"}]]]
+                           [:section.flex.flex-row.mt-2
                             [:label.font-bold.text-lg.ml-2.flex-1 {:for "repeat"} "Repeat"]
                             [:div.flex-1
-                             [:input.mr-4.rounded-xl {:type "number" :placeholder "KG" :name "repeat"}]]]
+                             [:input.mr-4.rounded-xl {:type "number" :placeholder "rep" :name "repeat"}]]]
                            [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
                             {:on-click #(submit-record-handler % records)
                              :type "submit"} "Submit"]]]
@@ -154,6 +159,7 @@
                            (for [it (map-indexed vector @records)]
                              ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
                                                  [:div.flex-1 (str "Set " (+ 1 (first it)))]
-                                                 [:div.flex-1  (str (:repeat (last it)) "KG")]
+                                                 [:div.flex-1 (str (:weight (last it)) "KG")]
+                                                 [:div.flex-1  (str (:repeat (last it)) "Rpt")]
                                                  [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
                                                   {:on-click #(delete-handler! records (last it))} "Delete"]])]]])})))

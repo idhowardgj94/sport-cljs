@@ -16,4 +16,5 @@
 (defn delete-exercise-by-id!
   [id]
   (when-let [uid (.-uid (:user @store))]
-    (delete-exercise! uid id)))
+    (delete-exercise! uid id))
+  )
