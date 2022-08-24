@@ -5,8 +5,9 @@
 
 (defn add-exercise-record!
   [data]
-  (when-let [uid (.-uid (:user @store))] 
-    (add-exercise! data, uid)))
+  ;; Store has a key :user, which store user info get from firebase
+  (when-let [uid (.-uid (:user @store))]
+        (add-exercise! data, uid)))
 
 (defn get-exercises-by-date
   [date name]
@@ -18,3 +19,8 @@
   (when-let [uid (.-uid (:user @store))]
     (delete-exercise! uid id))
   )
+
+(defn first-test
+  "This is just a demo test
+  Get a value, and directly return"
+  [val] val)
