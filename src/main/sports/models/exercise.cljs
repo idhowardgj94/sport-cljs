@@ -4,15 +4,15 @@
              :name "leg"
              :exercises 
              [{:id "front-squat"
-               :name "front-squat"}
+               :name "front squat"}
               {:id "back-squat"
               :name "back squat" }
               {:id "leg-press"
               :name "leg press" } 
               {:id "leg-curl"
-              :name "leg-curl"}
+              :name "leg curl"}
               {:id "calf-raise"
-              :name "calf-raise" }]}
+              :name "calf raise" }]}
             {:id 2
              :name "back"
              :exercises 
@@ -28,13 +28,13 @@
              [{:id "barbell-literal-press"
                :name "barbell literal press"}
               {:id "barbell-incline-press"
-               :name "barbell-incline press"}
+               :name "barbell incline press"}
               {:id "barbell-decline-press"
                :name "barbell decline press"}
               {:id "dumbell-literal-press"
                :name "dumbell literal press"}
               {:id "dumbell-incline-press"
-               :name "dumbell-incline press"}
+               :name "dumbell incline press"}
               {:id "dumbell-decline-press"
                :name "dumbell decline press"}]}
             {:id 4

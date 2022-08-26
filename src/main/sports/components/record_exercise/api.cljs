@@ -19,7 +19,7 @@
   (when-let [uid (.-uid (:user @store))]
     (delete-exercise! uid id))
   )
-
+;; TODO: delete me
 (defn first-test
   "This is just a demo test
   Get a value, and directly return"

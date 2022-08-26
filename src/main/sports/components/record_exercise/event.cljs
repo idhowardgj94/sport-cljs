@@ -1,5 +1,6 @@
 (ns sports.components.record-exercise.event)
 
+;; TODO: use something like redux pattern to handler event?
 ;; connect to firebase
 (defn record-change-event!
   [key records & _]

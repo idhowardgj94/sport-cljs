@@ -18,10 +18,12 @@
    :background-color "yellow"})
 
 (defn get-today
+  "This function get today date in yyy-MM-dd format"
   []
   (.format _ (js/Date.) "yyyy-MM-dd"))
 
 (defn get-date-format
+  "Input: js/Date, output yyyy-mm-dd"
   [d]
   (.format _ d "yyy-MM-dd"))
 
@@ -111,6 +113,7 @@
     (swap! records #(concat % (vector data)))))
 
 (defn delete-handler!
+  "handle delete event when user click delete"
   [records it]
   (delete-exercise-by-id! (:id it))
   (reset! records (->> @records
@@ -121,8 +124,13 @@
   [match]
   (let [name (:name (:query-params match))
         get-date #(:date @choose-date)
-        get-record-handler (fn [date] (-> (get-exercises-by-date date name)
-                                      (.then #(do (reset! records (js->clj % :keywordize-keys true))))))]
+        get-record-handler (fn [date]
+                             ;; Note: get-exercise-by-date will return a js array
+                             ;; which will transform to clojure's map, and it's indices will trasform to keyword
+                             ;; by setting :keywordize-keys to true.
+                             ;; so that we can use vector to trasform it to clojure's vector
+                             (-> (get-exercises-by-date date name)
+                                 (.then #(do (reset! records (js->clj % :keywordize-keys true))))))]
 ;; (:date (nth args 3)) 
     (r/create-class
      {:component-did-mount (fn []
