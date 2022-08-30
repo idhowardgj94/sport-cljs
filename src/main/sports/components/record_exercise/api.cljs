@@ -11,9 +11,9 @@
         (add-exercise!))))
 
 (defn get-exercises-by-date
-  [date name]
+  [date exercise-id]
   (when-let [uid (.-uid (:user @store))]
-    (get-exercises uid date name)))
+    (get-exercises uid date exercise-id)))
 
 (defn delete-exercise-by-id!
   [id]

@@ -17,8 +17,9 @@
 
 (defn add-exercise!
   [data]
+  (js/console.log (clj->js data))
   (-> (collection (get-firestore) "records")
-      (addDoc data)))
+      (addDoc (clj->js data ))))
 
 ;;(defn get-exercise
 ;;  [uid date name]
@@ -31,14 +32,15 @@
 ;;        (.catch #(do (js/console.log %))))))
 
 (defn get-exercises
-  [uid date exerciseId]
-  (let [collection (collection "records")
+  [uid date exercise-id]
+  (let [collection (collection (get-firestore) "records")
         query (query collection
                      (where "date" "==" date)
-                     (where "exerciseId" "==" exerciseId)
+                     (where "exerciseId" "==" exercise-id)
                      (where "uid" "==" uid))]
     (-> (getDocs query)
         (.then (fn [data]
+                 (js/console.log (.-docs data))
                  (-> (.-docs data)
                      (.map #(.data %)))))
         (.catch #(do (js/console.log %))))))

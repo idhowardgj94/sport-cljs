@@ -8,7 +8,7 @@
    [sports.models.exercise :refer [group]]
    [sports.components.record-exercise.api :refer [add-exercise-record! get-exercises-by-date delete-exercise-by-id!]]))
 
-(defonce exercise-meta (r/atom {:group "" :exercise ""}))
+(defonce exercise-meta (r/atom {:groupId 0 :exerciseId 0}))
 (defonce choose-date (r/atom {:show false :date (js/Date.)}))
 (defonce records (r/atom []))
 
@@ -27,27 +27,72 @@
   [d]
   (.format _ d "yyy-MM-dd"))
 
+(defn get-group-by-id
+  [id]
+  (->> group
+      (filter #(= (:id %) id))
+      (first)))
+
+(defn is-nan
+  [text]
+  (js/isNaN (js/parseInt text)))
+
+;; FIXME: This is not a good design
+;; This transform the head need te be show.
+;; The input n may be eithor "Today is xxx" or <string of int>
+;; which indicate the id of group
+;; So need to be show string directly
+;; or show group name by id
+(defn get-group-name-by-id
+  "
+  Input: string or int of string
+  output: date string (directly output) or group name (use get-group-by-id)
+  "
+  [n]
+  (-> (get-group-by-id (js/parseInt n))
+      (:name)))
+
+;; FIXME: get-exercises -> get-exercises-by-group-id
+(defn get-exercises
+  [id]
+  (->> group
+       (filter #(= (:id %) (js/parseInt id)))
+       (#(:exercises (nth % 0)))))
+
+
+(defn get-exercise-name-by-id
+  "
+  Input: exerciseId
+  output exerciseName
+  "
+  [exercise-id]
+  (->> (get-exercises (:groupId @exercise-meta))
+      (filter #(= (:id %) exercise-id))
+      (#(:name (nth % 0))) ))
+
 (defn head
   "define head of record exercise page"
   ([n]
-   [:header.flex.flex-row.justify-center {:class (head-layout)}
-    [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
-     [:button.appearance-none.shadow-none.border-none {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
-     [:p.text-xl.mx-2.py-2 n]]
-    [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
-     [:button.appearance-none.shadow-none.border-none {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
-      [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
-     [:span {:style {:display "block"}} [:> ^js DatePicker
-                                         {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
-                                          :value (:date @choose-date) :isOpen (:show @choose-date)
-                                          :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}]]]])
+     [:header.flex.flex-row.justify-center {:class (head-layout)}
+      [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
+       [:button.appearance-none.shadow-none.border-none
+        {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
+       [:p.text-xl.mx-2.py-2 n]]
+      [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
+       [:button.appearance-none.shadow-none.border-none
+        {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
+        [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
+       [:span {:style {:display "block"}} [:> ^js DatePicker
+                                           {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
+                                            :value (:date @choose-date) :isOpen (:show @choose-date)
+                                            :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}]]]])
   ([]
    (head (str  "Today is " (get-today)))))
 
 (defn click-item-handler!
-  [name]
-  (swap! exercise-meta #(assoc % :group name))
-  (rfe/push-state :main-page {:page-name "choose-exercise"} {:name name}))
+  [id]
+  (swap! exercise-meta #(assoc % :groupId id))
+  (rfe/push-state :main-page {:page-name "choose-exercise"} {:id id}))
 
 (defn record-exercise-page
   "content for record exercise list"
@@ -60,31 +105,25 @@
       ^{:key (:id g)}
       [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
        [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
-        {:on-click #(click-item-handler! (:name g))} (:name g)]])]])
-
-(defn- get-exercises
-  [name]
-  (->> group
-       (filter #(= (:name %) name))
-       (#(:exercises (nth % 0)))))
+        {:on-click #(click-item-handler! (:id g))} (:name g)]])]])
 
 (defn click-record-handler!
-  [name]
-  (swap! exercise-meta #(assoc % :exercise name))
-  (rfe/push-state :main-page {:page-name "record-form"} {:name name}))
+  [id]
+  (swap! exercise-meta #(assoc % :exerciseId id))
+  (rfe/push-state :main-page {:page-name "record-form"} {:exerciseId id}))
 
 (defn choose-exercise-page
   "choose exercise"
   [match]
-  (let [{:keys [name]} (:query-params match)]
+  (let [{:keys [id]} (:query-params match)]
     [:div.container
-     [head name]
+     [head (get-group-name-by-id id)]
      [:div.mt-2
-      (for [exercise (get-exercises name)]
+      (for [exercise (get-exercises id)]
         ^{:key (:id exercise)}
         [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
          [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
-          {:on-click #(click-record-handler! (:name exercise))} (:name exercise)]])]]))
+          {:on-click #(click-record-handler! (:id exercise))} (:name exercise)]])]]))
 
 (defn- get-form-by-name
   [e name]
@@ -108,9 +147,10 @@
 
   (let [repeat (get-form-by-name e "repeat")
         weight (get-form-by-name e "weight")
-        data (conj @exercise-meta {:weight weight :repeat repeat :id (str (random-uuid)) :date (get-form-by-id "date")})]
-    (add-exercise-record! data)
-    (swap! records #(concat % (vector data)))))
+         data (conj @exercise-meta {:weight weight :repeat repeat :date (get-form-by-id "date")})]
+    (-> (add-exercise-record! data)
+        (.then #(swap! records (fn [store] (concat store (vector (assoc data :id (.-id %)))))
+                       )))))
 
 (defn delete-handler!
   "handle delete event when user click delete"
@@ -122,14 +162,15 @@
 (defn record-form-page
   "record exercise form"
   [match]
-  (let [name (:name (:query-params match))
+  (let [exercise-id (:exerciseId (:query-params match))
+        name (get-exercise-name-by-id exercise-id)
         get-date #(:date @choose-date)
         get-record-handler (fn [date]
                              ;; Note: get-exercise-by-date will return a js array
                              ;; which will transform to clojure's map, and it's indices will trasform to keyword
                              ;; by setting :keywordize-keys to true.
                              ;; so that we can use vector to trasform it to clojure's vector
-                             (-> (get-exercises-by-date date name)
+                             (-> (get-exercises-by-date date exercise-id)
                                  (.then #(do (reset! records (js->clj % :keywordize-keys true))))))]
 ;; (:date (nth args 3)) 
     (r/create-class
