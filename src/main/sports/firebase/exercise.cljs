@@ -1,5 +1,6 @@
 (ns sports.firebase.exercise
   (:require
+   [goog.object :as o]
    ["regenerator-runtime/runtime"]
    [sports.firebase.setup :refer [init-app]]
    ["firebase/firestore" :as firestore :refer [setDoc doc collection addDoc getDocs getFirestore getDoc where query deleteDoc]]))
@@ -9,27 +10,11 @@
   []
   (getFirestore))
 
-;; {:group "back", :exercise "dumbell row", :repeat "40", :id "0f1ce067-e55b-49e9-ad42-dc622dd27984"}
-;; (defn add-exercise!
-;;  [data uid]
-;;  (-> (doc (get-firestore) "records" "user" uid (:id data))
-;;      (setDoc (clj->js (assoc data :uid uid)))))
-
 (defn add-exercise!
   [data]
   (js/console.log (clj->js data))
   (-> (collection (get-firestore) "records")
       (addDoc (clj->js data ))))
-
-;;(defn get-exercise
-;;  [uid date name]
-;;  (let [docRef (collection (get-firestore) "records" "user" uid)
-;;        query (query docRef (where "date" "==" date) (where "exercise" "==" name))]
-;;    (-> (getDocs query)
-;;        (.then (fn [data]
-;;                  (-> (.-docs data)
-;;                      (.map #(.data %)))))
-;;        (.catch #(do (js/console.log %))))))
 
 (defn get-exercises
   [uid date exercise-id]
@@ -42,13 +27,10 @@
         (.then (fn [data]
                  (js/console.log (.-docs data))
                  (-> (.-docs data)
-                     (.map #(.data %)))))
+                     (.map #(let [data (.data %)]
+                              (o/set data "id" (.-id %))
+                              data)))))
         (.catch #(do (js/console.log %))))))
-
-;; (defn delete-exercise!
-;;  [uid id]
-;;  (let [docRef (doc (get-firestore) "records" "user" uid id)]
-;;    (deleteDoc docRef)))
 
 (defn delete-exercise!
   [id]
