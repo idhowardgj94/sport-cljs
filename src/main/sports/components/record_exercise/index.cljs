@@ -1,12 +1,17 @@
 (ns sports.components.record-exercise.index
   (:require
-   ["date-fns" :as _]
    ["date-picker" :default DatePicker ]
+   [cljss.core :refer-macros [defstyles]]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]
-   [cljss.core :refer-macros [defstyles]]
-   [sports.models.exercise :refer [group]]
-   [sports.components.record-exercise.api :refer [add-exercise-record! get-exercises-by-date delete-exercise-by-id!]]))
+   [sports.components.record-exercise.api
+    :refer [add-exercise-record! delete-exercise-by-id! get-exercises-by-date]]
+   [sports.components.record-exercise.util
+    :refer [get-date-format
+            get-exercises-by-group-id
+            get-group-name-by-id
+            get-today]]
+   [sports.models.exercise :refer [group]]))
 
 (defonce exercise-meta (r/atom {:groupId 0 :exerciseId 0}))
 (defonce choose-date (r/atom {:show false :date (js/Date.)}))
@@ -16,59 +21,6 @@
   []
   {:height "50px"
    :background-color "yellow"})
-
-(defn get-today
-  "This function get today date in yyy-MM-dd format"
-  []
-  (.format _ (js/Date.) "yyyy-MM-dd"))
-
-(defn get-date-format
-  "Input: js/Date, output yyyy-mm-dd"
-  [d]
-  (.format _ d "yyy-MM-dd"))
-
-(defn get-group-by-id
-  [id]
-  (->> group
-      (filter #(= (:id %) id))
-      (first)))
-
-(defn is-nan
-  [text]
-  (js/isNaN (js/parseInt text)))
-
-;; FIXME: This is not a good design
-;; This transform the head need te be show.
-;; The input n may be eithor "Today is xxx" or <string of int>
-;; which indicate the id of group
-;; So need to be show string directly
-;; or show group name by id
-(defn get-group-name-by-id
-  "
-  Input: string or int of string
-  output: date string (directly output) or group name (use get-group-by-id)
-  "
-  [n]
-  (-> (get-group-by-id (js/parseInt n))
-      (:name)))
-
-;; FIXME: get-exercises -> get-exercises-by-group-id
-(defn get-exercises
-  [id]
-  (->> group
-       (filter #(= (:id %) (js/parseInt id)))
-       (#(:exercises (nth % 0)))))
-
-
-(defn get-exercise-name-by-id
-  "
-  Input: exerciseId
-  output exerciseName
-  "
-  [exercise-id]
-  (->> (get-exercises (:groupId @exercise-meta))
-      (filter #(= (:id %) exercise-id))
-      (#(:name (nth % 0))) ))
 
 (defn head
   "define head of record exercise page"
@@ -119,13 +71,13 @@
     [:div.container
      [head (get-group-name-by-id id)]
      [:div.mt-2
-      (for [exercise (get-exercises id)]
+      (for [exercise (get-exercises-by-group-id id)]
         ^{:key (:id exercise)}
         [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
          [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
           {:on-click #(click-record-handler! (:id exercise))} (:name exercise)]])]]))
 
-(defn- get-form-by-name
+(defn get-form-by-name
   [e name]
   (-> e
       (.-target)
@@ -134,7 +86,7 @@
       (aget name)
       (.-value)))
 
-(defn- get-form-by-id
+(defn get-form-by-id
   [id]
   (-> js/document
       (.getElementById id)
@@ -151,6 +103,17 @@
     (-> (add-exercise-record! data)
         (.then #(swap! records (fn [store] (concat store (vector (assoc data :id (.-id %)))))
                        )))))
+
+(defn get-exercise-name-by-id
+  "
+  Input: exerciseId
+  output exerciseName
+  "
+  [exercise-id]
+  (->> (get-exercises (:groupId @exercise-meta))
+      (filter #(= (:id %) exercise-id))
+      (#(:name (nth % 0))) ))
+
 
 (defn delete-handler!
   "handle delete event when user click delete"

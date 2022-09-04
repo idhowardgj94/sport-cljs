@@ -19,6 +19,6 @@
 ;;           :validate-msg nil
 ;;           :app nil
 ;;           :user nil}))
-(deftest add-exercise-record-test
-  (testing "Given a data, when call add-exercise-recrd!, it should call add-exercise! to store data in firestore"
-    (is (= (add-exercise-record! "someData") true))))
+;; (deftest add-exercise-record-test
+;; (testing "Given a data, when call add-exercise-recrd!, it should call add-exercise! to store data in firestore"
+;;   (is (= (add-exercise-record! "someData") true))))
