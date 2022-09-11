@@ -110,7 +110,7 @@
   output exerciseName
   "
   [exercise-id]
-  (->> (get-exercises (:groupId @exercise-meta))
+  (->> (get-exercises-by-group-id (:groupId @exercise-meta))
       (filter #(= (:id %) exercise-id))
       (#(:name (nth % 0))) ))
 

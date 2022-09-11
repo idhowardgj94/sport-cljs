@@ -12,7 +12,7 @@
    :asset-path "/js" 
    :js-options {:resolve {"date-picker"
                           {:target :file
-                           :file "src/main/vendor/date-picker.js"}}}
+                           :file "public/date-picker.js"}}}
    :compiler-options {:output-feature-set :es-next
                       :infer-externs :auto}
    :modules
@@ -25,7 +25,7 @@
    :asset-path "/js"
    :js-options {:resolve {"date-picker"
                           {:target :file
-                           :file "src/main/vendor/date-picker.js"}}}
+                           :file "public/date-picker.js"}}}
    :modules
    {:main
     {:init-fn sports.app/init}}}

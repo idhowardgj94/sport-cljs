@@ -28,7 +28,12 @@
 (defn deck-view
   []
   [:div.shadow-inner.flex.justify-center.items-center.bg-violet-100.container {:class (deck)}
-   [:button.bg-violet-100.hover:bg-violet-200.p-4.outline-none.shadow-none.appearance-none.border-none [:i.fa-solid.fa-house]]])
+   [:div.flex-1.items-center.flex.justify-center
+    [:button.bg-violet-100.hover:bg-violet-200.p-2.outline-none.shadow-none.appearance-none.border-none
+     [:i.fa-solid.fa-house]]]
+   [:div.flex-1.items-center.flex.justify-center
+    [:button.bg-violet-100.hover:bg-violet-200.p-2.outline-none.shadow-none.appearance-none.border-none
+     [:i.fa-solid.fa-pen-to-square]]]])
 
 (defn main-page
   "This is the main page after login"
