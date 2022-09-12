@@ -19,7 +19,6 @@
   (when (= false (:auth? @store)) 
     (rfe/push-state :login))
   (when (= true (:auth? @store))
-    ;; TODO: can :page-name string be changed to :page-name :name?
     (rfe/push-state :main-page {:page-name :record}))
   [:div (str "loading...")])
 
@@ -37,7 +36,7 @@
      :view login}]
    ["/main-page/:page-name"
     {:name :main-page
-     :parameters {:path {:page-name string?}}
+     :parameters {:path {:page-name keyword?}}
      :router (new-router
               [["/choose-exercise"
                 {:name :choose-exercise

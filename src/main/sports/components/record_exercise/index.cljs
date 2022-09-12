@@ -44,7 +44,7 @@
 (defn click-item-handler!
   [id]
   (swap! exercise-meta #(assoc % :groupId id))
-  (rfe/push-state :main-page {:page-name "choose-exercise"} {:id id}))
+  (rfe/push-state :main-page {:page-name :choose-exercise} {:id id}))
 
 (defn record-exercise-page
   "content for record exercise list"
@@ -62,7 +62,7 @@
 (defn click-record-handler!
   [id]
   (swap! exercise-meta #(assoc % :exerciseId id))
-  (rfe/push-state :main-page {:page-name "record-form"} {:exerciseId id}))
+  (rfe/push-state :main-page {:page-name :record-form} {:exerciseId id}))
 
 (defn choose-exercise-page
   "choose exercise"
