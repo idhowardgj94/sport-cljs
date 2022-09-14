@@ -1,5 +1,6 @@
 (ns sports.firebase.exercise
   (:require
+   [sports.models.exercise :as model]
    [goog.object :as o]
    ["regenerator-runtime/runtime"]
    [sports.firebase.setup :refer [init-app]]
@@ -25,12 +26,13 @@
                      (where "uid" "==" uid))]
     (-> (getDocs query)
         (.then (fn [data]
-                 (js/console.log (.-docs data))
-                 (-> (.-docs data)
-                     (.map #(let [data (.data %)]
-                              (o/set data "id" (.-id %))
-                              data)))))
-        (.catch #(do (js/console.log %))))))
+                 (as-> (.-docs data) $
+                     (.map $ #(let [data (.data %)]
+                                (o/set data "id" (.-id %))
+                                data))
+                     (js->clj $ :keywordize-keys true)
+                     (map model/newExerciseRecord $))))
+        (.catch #(do (js/console.error %))))))
 
 (defn delete-exercise!
   [id]

@@ -1,4 +1,6 @@
-(ns sports.models.exercise)
+(ns sports.models.exercise
+  (:require [cljs.spec.alpha :as s]
+            [sports.components.record-exercise.event :as event]))
 
 (def group [{:id 1
              :name "leg"
@@ -47,3 +49,36 @@
               {:id "dumbell decline-fly"
                :name "dumbell decline fly"}]}])
 
+;; Object { groupId: 1, exerciseId: "front-squat", weight: "50", repeat: "10", date: "2022-09-14", uid: "mgVoZfrY3SCaacfGeDl6ykpAiZSx" }
+;; exercise.cljs:15:27
+
+;; Note: validation.
+(s/def :ExerciseRecord/groupId int?)
+(s/def :ExerciseRecord/exerciseId string?)
+(s/def :ExerciseRecord/weight string?)
+(s/def :ExerciseRecord/repeat string?)
+(s/def :ExerciseRecord/date string?)
+(s/def :ExerciseRecord/uid string?)
+(s/def :ExerciseRecord/id string?)
+
+(s/def ::ExerciseRecord
+  (s/keys
+   :req-un [:ExerciseRecord/id
+            :ExerciseRecord/groupId
+            :ExerciseRecord/exerciseId
+            :ExerciseRecord/weight
+            :ExerciseRecord/repeat
+            :ExerciseRecord/date
+            :ExerciseRecord/uid]))
+
+
+(defrecord ExerciseRecord [id groupId exerciseId weight repeat date uid])
+
+(defn newExerciseRecord
+  "generate exerciseRecord from map"
+  [m]
+  (s/conform ::ExerciseRecord (map->ExerciseRecord m)))
+
+
+;; (map->ExerciseRecord
+;;  { :groupId 1 :exerciseId "front-squat" :weight "50" :repeat "10" :date "2022-09-14" :uid "mgVoZfrY3SCaacfGeDl6ykpAiZSx" })

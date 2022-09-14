@@ -11,7 +11,7 @@
             get-exercises-by-group-id
             get-group-name-by-id
             get-today]]
-   [sports.models.exercise :refer [group]]))
+   [sports.models.exercise :as model :refer [group]]))
 
 (defonce exercise-meta (r/atom {:groupId 0 :exerciseId 0}))
 (defonce choose-date (r/atom {:show false :date (js/Date.)}))
@@ -101,7 +101,8 @@
         weight (get-form-by-name e "weight")
          data (conj @exercise-meta {:weight weight :repeat repeat :date (get-form-by-id "date")})]
     (-> (add-exercise-record! data)
-        (.then #(swap! records (fn [store] (concat store (vector (assoc data :id (.-id %)))))
+        (.then #(swap! records (fn [store]
+                                 (concat store (vector (assoc data :id (.-id %)))))
                        )))))
 
 (defn get-exercise-name-by-id
@@ -134,7 +135,7 @@
                              ;; by setting :keywordize-keys to true.
                              ;; so that we can use vector to trasform it to clojure's vector
                              (-> (get-exercises-by-date date exercise-id)
-                                 (.then #(do (reset! records (js->clj % :keywordize-keys true))))))]
+                                 (.then #(reset! records %))))]
 ;; (:date (nth args 3)) 
     (r/create-class
      {:component-did-mount (fn []
