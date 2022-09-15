@@ -8,6 +8,7 @@
             [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
             [sports.components.login.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
+            [sports.components.chart-page.index :refer [chart-page]]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
@@ -47,7 +48,10 @@
                ["/record-form"
                 {:name :record-form
                  :parameters {:query {(ds/opt :name) string?}}
-                 :view record-form-page}]])
+                 :view record-form-page}]
+               ["/chart"
+                {:name :chart
+                 :view chart-page}]])
      :view main-page}]])
 
 (defn init! []

@@ -1,6 +1,8 @@
 (ns sports.models.exercise
   (:require [cljs.spec.alpha :as s]
-            [sports.components.record-exercise.event :as event]))
+            [spec-tools.core :as st]
+            [sports.components.record-exercise.event :as event]
+            [spec-tools.data-spec :as ds]))
 
 (def group [{:id 1
              :name "leg"
@@ -51,34 +53,25 @@
 
 ;; Object { groupId: 1, exerciseId: "front-squat", weight: "50", repeat: "10", date: "2022-09-14", uid: "mgVoZfrY3SCaacfGeDl6ykpAiZSx" }
 ;; exercise.cljs:15:27
+;; data-spec
+(def exercise-record
+  {:groupId int?
+   :exerciseId string?
+   :weight string?
+   :repeat string?
+   :date string?
+   :uid string?
+   (ds/opt :id)  string?})
 
-;; Note: validation.
-(s/def :ExerciseRecord/groupId int?)
-(s/def :ExerciseRecord/exerciseId string?)
-(s/def :ExerciseRecord/weight string?)
-(s/def :ExerciseRecord/repeat string?)
-(s/def :ExerciseRecord/date string?)
-(s/def :ExerciseRecord/uid string?)
-(s/def :ExerciseRecord/id string?)
-
-(s/def ::ExerciseRecord
-  (s/keys
-   :req-un [:ExerciseRecord/id
-            :ExerciseRecord/groupId
-            :ExerciseRecord/exerciseId
-            :ExerciseRecord/weight
-            :ExerciseRecord/repeat
-            :ExerciseRecord/date
-            :ExerciseRecord/uid]))
+(def exercise-record-spec
+  (ds/spec
+   {:name ::exercise-record
+    :spec exercise-record}))
 
 
-(defrecord ExerciseRecord [id groupId exerciseId weight repeat date uid])
+;; (defrecord ExerciseRecord [id groupId exerciseId weight repeat date uid])
 
 (defn newExerciseRecord
   "generate exerciseRecord from map"
   [m]
-  (s/conform ::ExerciseRecord (map->ExerciseRecord m)))
-
-
-;; (map->ExerciseRecord
-;;  { :groupId 1 :exerciseId "front-squat" :weight "50" :repeat "10" :date "2022-09-14" :uid "mgVoZfrY3SCaacfGeDl6ykpAiZSx" })
+  (s/conform exercise-record-spec m))
