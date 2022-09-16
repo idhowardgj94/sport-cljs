@@ -1,7 +1,6 @@
 (ns sports.models.exercise
   (:require [cljs.spec.alpha :as s]
             [spec-tools.core :as st]
-            [sports.components.record-exercise.event :as event]
             [spec-tools.data-spec :as ds]))
 
 (def group [{:id 1
@@ -69,9 +68,9 @@
     :spec exercise-record}))
 
 
-;; (defrecord ExerciseRecord [id groupId exerciseId weight repeat date uid])
+(defrecord ExerciseRecord [id groupId exerciseId weight repeat date uid])
 
 (defn newExerciseRecord
   "generate exerciseRecord from map"
   [m]
-  (s/conform exercise-record-spec m))
+  (s/conform exercise-record-spec (map->ExerciseRecord m)))

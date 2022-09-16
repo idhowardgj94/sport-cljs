@@ -11,35 +11,33 @@
             get-exercises-by-group-id
             get-group-name-by-id
             get-today]]
+   [sports.components.header.index :refer [head-layout head]]
    [sports.models.exercise :as model :refer [group]]))
 
 (defonce exercise-meta (r/atom {:groupId 0 :exerciseId 0}))
 (defonce choose-date (r/atom {:show false :date (js/Date.)}))
 (defonce records (r/atom []))
 
-(defstyles head-layout
-  []
-  {:height "50px"
-   :background-color "yellow"})
-
-(defn head
+(defn record-head
   "define head of record exercise page"
   ([n]
-     [:header.flex.flex-row.justify-center {:class (head-layout)}
-      [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
-       [:button.appearance-none.shadow-none.border-none
-        {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
-       [:p.text-xl.mx-2.py-2 n]]
-      [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
-       [:button.appearance-none.shadow-none.border-none
-        {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
-        [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
-       [:span {:style {:display "block"}} [:> ^js DatePicker
-                                           {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
-                                            :value (:date @choose-date) :isOpen (:show @choose-date)
-                                            :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}]]]])
+     [head
+      [:<>
+       [:section.flex-1.bg-blue-100.flex.flex-row.items-center.pl-2
+        [:button.appearance-none.shadow-none.border-none
+         {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
+        [:p.text-xl.mx-2.py-2 n]]
+       [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
+        [:button.appearance-none.shadow-none.border-none
+         {:on-click #(swap! choose-date (fn [lt] (assoc lt :show (not (@choose-date :show)))))}
+         [:i.my-auto.fa-regular.fa-calendar.fa-xl]]
+        [:span {:style {:display "block"}} [:> ^js DatePicker
+                                            {:onCalendarClose #(swap! choose-date (fn [lt] (assoc lt :show false)))
+                                             :value (:date @choose-date) :isOpen (:show @choose-date)
+                                             :onChange #(swap! choose-date (fn [lt] (assoc lt :date %)))}
+                                            ]]]]])
   ([]
-   (head (str  "Today is " (get-today)))))
+   (record-head (str  "Today is " (get-today)))))
 
 (defn click-item-handler!
   [id]
@@ -50,7 +48,7 @@
   "content for record exercise list"
   []
   [:div.container
-   [head]
+   [record-head]
    [:section.text-md.mx-2.my-4.py-2 "what do you wont to do today??"]
    [:div.mt-2
     (for [g group]
@@ -69,7 +67,7 @@
   [match]
   (let [{:keys [id]} (:query-params match)]
     [:div.container
-     [head (get-group-name-by-id id)]
+     [record-head (get-group-name-by-id id)]
      [:div.mt-2
       (for [exercise (get-exercises-by-group-id id)]
         ^{:key (:id exercise)}
@@ -148,7 +146,7 @@
       :component-will-unmount (fn [] (remove-watch choose-date :choose-by-date))
       :reagent-render (fn []
                         [:div.container
-                         [head name]
+                         [record-head name]
                          [:div.py-4.rounded.shadow-sm
                           [:form.mb-4
                            [:section.flex.flex-row.mb-2
