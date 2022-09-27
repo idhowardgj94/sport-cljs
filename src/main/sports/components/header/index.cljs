@@ -6,8 +6,7 @@
 
 (defstyles head-layout
   []
-  {:height "50px"
-   :background-color "yellow"})
+  {:height "50px"})
 
 (defn head
   [children ]
