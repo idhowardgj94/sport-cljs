@@ -97,7 +97,7 @@
 
   (let [repeat (get-form-by-name e "repeat")
         weight (get-form-by-name e "weight")
-         data (conj @exercise-meta {:weight weight :repeat repeat :date (get-form-by-id "date")})]
+         data (conj @exercise-meta {:weight weight :repeat repeat :date (js/Date. (get-form-by-id "date"))})]
     (-> (add-exercise-record! data)
         (.then #(swap! records (fn [store]
                                  (concat store (vector (assoc data :id (.-id %)))))
@@ -168,9 +168,12 @@
                           [:div.text-lg.text-center.font-medium.p-2.bg-blue-100 "Records"]
                           [:div
                            (for [it (map-indexed vector @records)]
-                             ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                             (if (= (second it) "invalid")
+                               ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                   [:div.flex-1 "Something went wrong with the data."]]
+                               ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
                                                  [:div.flex-1 (str "Set " (+ 1 (first it)))]
                                                  [:div.flex-1 (str (:weight (last it)) "KG")]
                                                  [:div.flex-1  (str (:repeat (last it)) "Rpt")]
                                                  [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
-                                                  {:on-click #(delete-handler! records (last it))} "Delete"]])]]])})))
+                                                  {:on-click #(delete-handler! records (last it))} "Delete"]]))]]])})))

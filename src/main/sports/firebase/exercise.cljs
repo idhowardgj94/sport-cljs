@@ -21,7 +21,7 @@
   [uid date exercise-id]
   (let [collection (collection (get-firestore) "records")
         query (query collection
-                     (where "date" "==" date)
+                     (where "date" "==" (js/Date. date))
                      (where "exerciseId" "==" exercise-id)
                      (where "uid" "==" uid))]
     (-> (getDocs query)

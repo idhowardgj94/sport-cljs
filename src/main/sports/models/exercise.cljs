@@ -58,7 +58,7 @@
    :exerciseId string?
    :weight string?
    :repeat string?
-   :date string?
+   :date (fn [i] instance? i (js/Date))
    :uid string?
    (ds/opt :id)  string?})
 
