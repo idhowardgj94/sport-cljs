@@ -12,7 +12,9 @@
    [cljss.core :refer-macros [defstyles]]
    [reitit.frontend.easy :as rfe]
    [reagent.core :as r]
+   [cljs.spec.alpha :as s]
    [reitit.frontend.easy :as rfe]))
+
 (def data [{:name "Page A"
            :uv 4000
            :pv 2400
@@ -44,7 +46,6 @@
 
 (defn sample-chart
   []
-  (js/console.log "inside sample-chart")
   [:> ResponsiveContainer {:width "100%" :height "100%"}
    [:> LineChart {:width 500 :height 300 :data (clj->js data) :margin (clj->js {:top 5 :right 30 :left 20 :bottom 5})}
     [:> CartesianGrid {:stokeDasharray "3 3"}]
@@ -58,7 +59,7 @@
 
 (defn chart-page
   []
-  [:div
+  [:div.container
    [head
     [:<>
      [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
