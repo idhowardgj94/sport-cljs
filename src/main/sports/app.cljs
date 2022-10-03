@@ -1,8 +1,13 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
             [sports.route :refer [init! match]]
+            [cljs.spec.alpha :as s]
             [sports.firebase.setup :refer [init-app]])
   (:require-macros [sports.config :refer [firebase-config]]))
+
+;; TODO: allow if asserts false throw error
+(s/check-asserts true)
+
 (goog-define ENV "production")
 
 (defonce config (firebase-config))
