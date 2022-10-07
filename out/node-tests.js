@@ -3,14 +3,14 @@
 var shadow$provide = {};
 
 var SHADOW_IMPORT_PATH = __dirname + '/../.shadow-cljs/builds/test/dev/out/cljs-runtime';
-if (__dirname == '.') { SHADOW_IMPORT_PATH = "/Users/howard/workspace/sport_app/.shadow-cljs/builds/test/dev/out/cljs-runtime"; }
+if (__dirname == '.') { SHADOW_IMPORT_PATH = "/home/howard/data/workspace/sport-cljs/.shadow-cljs/builds/test/dev/out/cljs-runtime"; }
 global.$CLJS = global;
 global.shadow$provide = {};
 try {require('source-map-support').install();} catch (e) {console.warn('no "source-map-support" (run "npm install source-map-support --save-dev" to get it)');}
 
 global.CLOSURE_NO_DEPS = true;
 
-global.CLOSURE_DEFINES = {"goog.DEBUG":true,"goog.LOCALE":"en","goog.TRANSPILE":"never","goog.ENABLE_DEBUG_LOADER":false,"cljs.core._STAR_target_STAR_":"nodejs"};
+global.CLOSURE_DEFINES = {"shadow.cljs.devtools.client.env.repl_pprint":false,"shadow.cljs.devtools.client.env.reload_strategy":"optimized","shadow.cljs.devtools.client.env.devtools_url":"","shadow.cljs.devtools.client.env.autoload":true,"shadow.cljs.devtools.client.env.proc_id":"9dbc70b8-3ab4-4c13-855e-9ca1d91bc60b","shadow.cljs.devtools.client.env.use_document_protocol":false,"goog.ENABLE_DEBUG_LOADER":false,"shadow.cljs.devtools.client.env.server_port":9630,"shadow.cljs.devtools.client.env.server_token":"447e5aaf-7ea7-48c4-85fe-b633c886466f","shadow.cljs.devtools.client.env.use_document_host":true,"shadow.cljs.devtools.client.env.module_format":"goog","goog.LOCALE":"en","shadow.cljs.devtools.client.env.build_id":"test","shadow.cljs.devtools.client.env.ignore_warnings":false,"goog.DEBUG":true,"cljs.core._STAR_target_STAR_":"nodejs","shadow.cljs.devtools.client.env.log":true,"shadow.cljs.devtools.client.env.ssl":false,"shadow.cljs.devtools.client.env.enabled":true,"shadow.cljs.devtools.client.env.server_host":"localhost","shadow.cljs.devtools.client.env.worker_client_id":401,"goog.TRANSPILE":"never"};
 
 var goog = global.goog = {};
 
@@ -1673,6 +1673,34 @@ SHADOW_IMPORT("shadow.test.env.js");
 SHADOW_IMPORT("clojure.string.js");
 SHADOW_IMPORT("cljs.pprint.js");
 SHADOW_IMPORT("cljs.test.js");
+SHADOW_IMPORT("clojure.walk.js");
+SHADOW_IMPORT("cljs.spec.gen.alpha.js");
+SHADOW_IMPORT("cljs.spec.alpha.js");
+SHADOW_IMPORT("clojure.set.js");
+SHADOW_IMPORT("cljs.env.js");
+SHADOW_IMPORT("cljs.tools.reader.impl.utils.js");
+SHADOW_IMPORT("cljs.tools.reader.reader_types.js");
+SHADOW_IMPORT("cljs.tools.reader.impl.inspect.js");
+SHADOW_IMPORT("cljs.tools.reader.impl.errors.js");
+SHADOW_IMPORT("cljs.tools.reader.impl.commons.js");
+SHADOW_IMPORT("cljs.tools.reader.js");
+SHADOW_IMPORT("cljs.tools.reader.edn.js");
+SHADOW_IMPORT("cljs.reader.js");
+SHADOW_IMPORT("cljs.tagged_literals.js");
+SHADOW_IMPORT("cljs.analyzer.js");
+SHADOW_IMPORT("cljs.analyzer.api.js");
+SHADOW_IMPORT("spec_tools.form.js");
+SHADOW_IMPORT("spec_tools.impl.js");
+SHADOW_IMPORT("spec_tools.parse.js");
+SHADOW_IMPORT("goog.date.datelike.js");
+SHADOW_IMPORT("goog.i18n.datetimesymbols.js");
+SHADOW_IMPORT("goog.date.date.js");
+SHADOW_IMPORT("goog.date.utcdatetime.js");
+SHADOW_IMPORT("clojure.edn.js");
+SHADOW_IMPORT("spec_tools.transform.js");
+SHADOW_IMPORT("spec_tools.core.js");
+SHADOW_IMPORT("spec_tools.data_spec.js");
+SHADOW_IMPORT("sports.models.exercise.js");
 SHADOW_IMPORT("shadow.js.shim.module$regenerator_runtime$runtime.js");
 SHADOW_IMPORT("shadow.js.shim.module$firebase$firestore.js");
 SHADOW_IMPORT("shadow.js.shim.module$firebase$database.js");
@@ -1696,12 +1724,10 @@ SHADOW_IMPORT("goog.events.listener.js");
 SHADOW_IMPORT("goog.events.listenermap.js");
 SHADOW_IMPORT("goog.events.events.js");
 SHADOW_IMPORT("reitit.exception.js");
-SHADOW_IMPORT("clojure.set.js");
 SHADOW_IMPORT("meta_merge.core.js");
 SHADOW_IMPORT("reitit.trie.js");
 SHADOW_IMPORT("reitit.impl.js");
 SHADOW_IMPORT("reitit.core.js");
-SHADOW_IMPORT("clojure.walk.js");
 SHADOW_IMPORT("reitit.coercion.js");
 SHADOW_IMPORT("reitit.frontend.js");
 SHADOW_IMPORT("reitit.frontend.history.js");
@@ -1723,7 +1749,6 @@ SHADOW_IMPORT("sports.firebase.exercise.js");
 SHADOW_IMPORT("sports.components.record_exercise.api.js");
 SHADOW_IMPORT("sports.components.record_exercise.api_test.js");
 SHADOW_IMPORT("shadow.js.shim.module$date_fns.js");
-SHADOW_IMPORT("sports.models.exercise.js");
 SHADOW_IMPORT("sports.components.record_exercise.util.js");
 SHADOW_IMPORT("sports.components.record_exercise.util_test.js");
 SHADOW_IMPORT("sports.main_test.js");

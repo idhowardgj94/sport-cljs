@@ -11,8 +11,10 @@
    [sports.components.header.index :refer [head]]
    [cljss.core :refer-macros [defstyles]]
    [reitit.frontend.easy :as rfe]
+   [sports.firebase.chart :as api]
    [reagent.core :as r]
    [cljs.spec.alpha :as s]
+   [sports.state :refer [sub unsub store]]
    [reitit.frontend.easy :as rfe]))
 
 (def data [{:name "Page A"
@@ -57,15 +59,29 @@
     [:> Line {:type "monotone" :dataKey "uv" :stroke "#82ca9d"}]
     ]])
 
+(defn check-list
+  []
+  [:div.px-4.py-4
+   [:label.block.text-sm.font-medium.text-gray-700  {:for "group"} "Group"]
+   [:select#group.mt-1.block.w-full.rounded-md.border.border-gray-300.bg-white.py-2 {:name "group"}
+    [:option "Leg"]
+    [:option "Back"]
+    [:option "Chest"]]])
 (defn chart-page
   []
-  [:div.container
-   [head
-    [:<>
-     [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
-      [:div.pl-2 "Progessive Panel"]]]]
-
-   [:div.mt-2.max-w-sm.shadow-lg.rounded.overflow-hidden.bg-yellow-100
-    "Checkout your progressive now"]
-   [:div.mt-4 {:style {:height "250px" :width "100%"} }
-    [sample-chart]]])
+    (r/with-let [test (sub ::test [:chart/test])]
+    [:div.container
+     [head
+      [:<>
+       [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
+        [:div.pl-2 "Progessive Panel"]]]]
+     [:div (str "test" @test)]
+     [:button.bg-blue-100.p-2 {:on-click (fn []
+                                           (js/console.log "inside click handler")
+                                           (swap! store #(assoc % :chart/test (random-uuid)))
+                                           )} "clickme" ]
+     [:div.mt-4 {:style {:height "250px" :width "100%"} }
+      [sample-chart]]]
+      (finally
+        (unsub ::test)
+        (js/console.log "qqqq"))))
