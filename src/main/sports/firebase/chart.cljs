@@ -16,8 +16,8 @@
         query (query collection
                      (where "uid" "==" uid)
                      (where "exerciseId" "==" exercise-id)
-                     (where "date" ">=" (js/Date. start))
-                     (where "date" "<=" (js/Date. end)))]
+                     (where "date" ">=" start)
+                     (where "date" "<=" end))]
     (-> (getDocs query)
         (.then #(organize-js-data %))
         (.then #(json->edn %))

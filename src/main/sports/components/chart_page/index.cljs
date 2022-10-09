@@ -8,14 +8,18 @@
                        Tooltip
                        Legend
                        ResponsiveContainer]]
+   [sports.components.record-exercise.util
+    :refer [get-exercises-by-group-id]]
    [sports.components.header.index :refer [head]]
    [cljss.core :refer-macros [defstyles]]
    [reitit.frontend.easy :as rfe]
    [sports.firebase.chart :as api]
    [reagent.core :as r]
+   [sports.actions :as actions :refer [get-chart-data-by-group!]]
    [cljs.spec.alpha :as s]
-   [sports.state :refer [sub unsub store]]
-   [reitit.frontend.easy :as rfe]))
+   [sports.state :refer [sub unsub store get-uid]]
+   [reitit.frontend.easy :as rfe]
+   [sports.firebase.exercise :as exercise]))
 
 (def data [{:name "Page A"
            :uv 4000
@@ -46,18 +50,18 @@
            :pv 4380
            :amt 2100}])
 
-(defn sample-chart
-  []
-  [:> ResponsiveContainer {:width "100%" :height "100%"}
-   [:> LineChart {:width 500 :height 300 :data (clj->js data) :margin (clj->js {:top 5 :right 30 :left 20 :bottom 5})}
-    [:> CartesianGrid {:stokeDasharray "3 3"}]
-    [:> XAxis {:dataKey "name"}]
-    [:> YAxis ]
-    [:> Tooltip]
-    [:> Legend]
-    [:> Line {:type "monotone" :dataKey "pv" :stroke "#8884d8" :activeDot (clj->js {:r 8})}]
-    [:> Line {:type "monotone" :dataKey "uv" :stroke "#82ca9d"}]
-    ]])
+(defn chart
+  [data]
+  (print data)
+   [:> ResponsiveContainer {:width "100%" :height "100%"}
+    [:> LineChart {:width 500 :height 300 :data (clj->js data) :margin (clj->js {:top 5 :right 30 :left 20 :bottom 5})}
+     [:> CartesianGrid {:stokeDasharray "3 3"}]
+     [:> XAxis {:dataKey "date"}]
+     [:> YAxis]
+     [:> Tooltip]
+     [:> Legend]
+     ;; [:> Line {:type "monotone" :dataKey "pv" :stroke "#8884d8" :activeDot (clj->js {:r 8})}]
+     [:> Line {:type "monotone" :dataKey "weight" :stroke "#82ca9d"}]]])
 
 (defn check-list
   []
@@ -67,21 +71,58 @@
     [:option "Leg"]
     [:option "Back"]
     [:option "Chest"]]])
+
+(defn get-month-duration
+  [date]
+  (let [start (js/Date. date)]
+    (.setDate start (- (.getDate start) 31))
+    start))
+
+;;@store
+;(js/console.log (:user @store))
+;(print (.-uid (:user @store)))
+(defn on-change-select-handler
+  [e ]
+  (let [group-id (.-value (.-target e))
+        exercises (get-exercises-by-group-id group-id)
+        enddate (js/Date.)
+        startdate (get-month-duration enddate)]
+    (js/console.log (clj->js exercises))
+    (get-chart-data-by-group!
+     (get-uid) exercises startdate enddate)))
+
 (defn chart-page
   []
-    (r/with-let [test (sub ::test [:chart/test])]
+  ;; get the default chart data
+  ;; I assme that the default group is the first item of the groups array.
+  ;; TODO: choose duration
+  (let [enddate (js/Date.)
+        startdate (get-month-duration enddate)]
+    (if-not (= "done" (:chart/state @store))
+      (get-chart-data-by-group!
+       (get-uid) (:exercises (nth (:exercise/groups @store) 0)) startdate enddate)))
+
+  (fn []
+    (r/with-let [exercise (sub :groups [:exercise/groups
+                                        :chart/state
+                                        :chart/err-msg
+                                        :chart/data])]
     [:div.container
      [head
       [:<>
        [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
         [:div.pl-2 "Progessive Panel"]]]]
-     [:div (str "test" @test)]
-     [:button.bg-blue-100.p-2 {:on-click (fn []
-                                           (js/console.log "inside click handler")
-                                           (swap! store #(assoc % :chart/test (random-uuid)))
-                                           )} "clickme" ]
-     [:div.mt-4 {:style {:height "250px" :width "100%"} }
-      [sample-chart]]]
-      (finally
-        (unsub ::test)
-        (js/console.log "qqqq"))))
+     [:div.mt-4
+      [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg
+       {:on-change #(on-change-select-handler %)}
+       (for [item (:exercise/groups @exercise)]
+        ^{:key (:id item)} [:option {:value (:id item)} (:name item)])
+       ]]
+     ;; chart part
+     (if-not (= (:chart/state @exercise) "done")
+             [:div.mt-4 "loading data, please wait......"]
+             (for [it (:chart/data @exercise)]
+             ^{:key (:name it)} [:div.mt-4.text-xl.text-bold (:name it)
+                                 [:div.mt-2 {:style {:height "250px" :width "100%"} }
+                                  [chart (:data it)]]]))]
+    (finally (unsub ::groups)))))

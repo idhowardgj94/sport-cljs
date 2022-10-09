@@ -1,5 +1,6 @@
 (ns sports.models.exercise
   (:require [cljs.spec.alpha :as s]
+            [sports.actions :as actions]
             [spec-tools.core :as st]
             [spec-tools.data-spec :as ds]))
 
@@ -49,7 +50,8 @@
                :name "dumbell incline fly"}
               {:id "dumbell decline-fly"
                :name "dumbell decline fly"}]}])
-
+;; TODO: move to other place
+(actions/set-exercise-group! group)
 ;; Object { groupId: 1, exerciseId: "front-squat", weight: "50", repeat: "10", date: "2022-09-14", uid: "mgVoZfrY3SCaacfGeDl6ykpAiZSx" }
 ;; exercise.cljs:15:27
 ;; data-spec

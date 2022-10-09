@@ -1,11 +1,13 @@
 (ns sports.state
-  (:require [reagent.core :as r]))
+  (:require
+   [reagent.core :as r]))
 
-(def store 
+(def store
   (r/atom {:auth? nil
            :validate-msg nil
            :app nil
            :user nil
+           :exercise/groups []
            ;; "loading" "success" "error" "init"
            :chart/state "init"
            :chart/err-msg nil
@@ -22,3 +24,8 @@
   [id]
   (remove-watch store id))
 (remove-watch store ::tets)
+
+(defn get-uid
+  "get the uid from store."
+  []
+  (.-uid (:user @store)))

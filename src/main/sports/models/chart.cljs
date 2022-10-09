@@ -7,8 +7,8 @@
 
 (def by-date-record
   {:date string?
-   :weight int?
-   :repeat int?
+   :weight number?
+   :repeat number?
    })
 
 (def by-date-record-spec
