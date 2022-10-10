@@ -21,35 +21,6 @@
    [reitit.frontend.easy :as rfe]
    [sports.firebase.exercise :as exercise]))
 
-(def data [{:name "Page A"
-           :uv 4000
-           :pv 2400
-           :amt 2400}
-           {:name "Page B"
-           :uv 3000
-           :pv 1398
-           :amt 2210}
-           {:name "Page C"
-           :uv 2000
-           :pv 9800
-           :amt 2990}
-           {:name "Page D"
-           :uv 2780
-           :pv 3980
-           :amt 2000}
-           {:name "Page E"
-           :uv 1890
-           :pv 4800
-           :amt 2181}
-           {:name "Page F"
-           :uv 2390
-           :pv 3800
-           :amt 2500}
-           {:name "Page G"
-           :uv 3490
-           :pv 4380
-           :amt 2100}])
-
 (defn chart
   [data]
   (print data)
@@ -57,7 +28,7 @@
     [:> LineChart {:width 500 :height 300 :data (clj->js data) :margin (clj->js {:top 5 :right 30 :left 20 :bottom 5})}
      [:> CartesianGrid {:stokeDasharray "3 3"}]
      [:> XAxis {:dataKey "date"}]
-     [:> YAxis]
+     [:> YAxis {:domain ["auto" "auto"]} ]
      [:> Tooltip]
      [:> Legend]
      ;; [:> Line {:type "monotone" :dataKey "pv" :stroke "#8884d8" :activeDot (clj->js {:r 8})}]
@@ -112,7 +83,7 @@
       [:<>
        [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
         [:div.pl-2 "Progessive Panel"]]]]
-     [:div.mt-4
+     [:div.mt-4.mx-2
       [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg
        {:on-change #(on-change-select-handler %)}
        (for [item (:exercise/groups @exercise)]
@@ -120,9 +91,9 @@
        ]]
      ;; chart part
      (if-not (= (:chart/state @exercise) "done")
-             [:div.mt-4 "loading data, please wait......"]
+             [:div.px-2.mt-4 "loading data, please wait......"]
              (for [it (:chart/data @exercise)]
-             ^{:key (:name it)} [:div.mt-4.text-xl.text-bold (:name it)
-                                 [:div.mt-2 {:style {:height "250px" :width "100%"} }
+             ^{:key (:name it)} [:div.mx-2.mt-4.text-xl.text-bold (:name it)
+                                 [:div.mt-2.mx-2 {:style {:height "250px" :width "100%"} }
                                   [chart (:data it)]]]))]
     (finally (unsub ::groups)))))
