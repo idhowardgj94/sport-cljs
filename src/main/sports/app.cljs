@@ -2,6 +2,7 @@
   (:require [reagent.dom :as dom]
             [sports.route :refer [init! match]]
             [cljs.spec.alpha :as s]
+            [cljss.core :as css]
             [sports.firebase.setup :refer [init-app]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
@@ -22,6 +23,9 @@
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
+  ;; Note: this may break functionality of tailwindcss.
+  ;; Need to find another solution to solve this
+  (css/remove-styles!)
   (init!)
   (init-app config ENV)
   (dom/render [app]

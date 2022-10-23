@@ -9,6 +9,8 @@
            :user nil
            :exercise/groups []
            ;; "loading" "success" "error" "init"
+           :chart/start-date nil
+           :chart/end-date nil
            :chart/state "init"
            :chart/err-msg nil
            :chart/data []}))

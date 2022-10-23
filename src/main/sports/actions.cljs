@@ -3,7 +3,18 @@
    [cljs.core.async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [sports.firebase.chart :refer [get-exercise-by-startdate-and-enddate]]
-   [sports.state :refer [store]]))
+   [sports.state :refer [store]]
+   ["date-fns" :refer [endOfToday]]))
+
+;; chart_page actions
+(defn get-monthly-duration
+  "Aim to get monthly duration, start from today"
+  []
+  (let [start (endOfToday)]
+    (.setDate start (- (.getDate start) 31))
+    (swap! store #(do (assoc % :chart/end-date (endOfToday)
+                             assoc % :chart/start-date start)
+                      ))))
 
 (defn set-exercise-group!
   [groups]
@@ -14,13 +25,12 @@
   This function recieved four params: a uid, a vector of exercises which is belong to a group
   startdate (js Date) and enddate(js date)"
   [uid exercises startdate enddate]
-  (js/console.log "inside get-chart-data-by-group!" (clj->js exercises))
-  (swap! store #(assoc % :chart/state "init"))
+  (swap! store #(assoc % :chart/state "loading"))
   (swap! store #(assoc % :chart/data []))
   (go
     (try
       (doseq [it exercises]
-        (js/console.log "exercises: " it)
+        ;; TODO: use Promise.all
         (let [data (<p! (get-exercise-by-startdate-and-enddate
                          uid (:id it) startdate enddate))]
           ;; if length not 0, swap to store.

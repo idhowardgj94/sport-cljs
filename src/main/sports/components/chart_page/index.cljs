@@ -15,11 +15,13 @@
    [reitit.frontend.easy :as rfe]
    [sports.firebase.chart :as api]
    [reagent.core :as r]
-   [sports.actions :as actions :refer [get-chart-data-by-group!]]
+   [sports.actions :as actions :refer [get-chart-data-by-group!
+                                       get-monthly-duration]]
    [cljs.spec.alpha :as s]
    [sports.state :refer [sub unsub store get-uid]]
    [reitit.frontend.easy :as rfe]
-   [sports.firebase.exercise :as exercise]))
+   [sports.firebase.exercise :as exercise]
+   ["date-fns" :refer [endOfToday]]))
 
 (defn chart
   [data]
@@ -43,22 +45,13 @@
     [:option "Back"]
     [:option "Chest"]]])
 
-(defn get-month-duration
-  [date]
-  (let [start (js/Date. date)]
-    (.setDate start (- (.getDate start) 31))
-    start))
-
 ;;@store
 ;(js/console.log (:user @store))
 ;(print (.-uid (:user @store)))
 (defn on-change-select-handler
-  [e ]
+  [e startdate enddate]
   (let [group-id (.-value (.-target e))
-        exercises (get-exercises-by-group-id group-id)
-        enddate (js/Date.)
-        startdate (get-month-duration enddate)]
-    (js/console.log (clj->js exercises))
+        exercises (get-exercises-by-group-id group-id)]
     (get-chart-data-by-group!
      (get-uid) exercises startdate enddate)))
 
@@ -67,29 +60,39 @@
   ;; get the default chart data
   ;; I assme that the default group is the first item of the groups array.
   ;; TODO: choose duration
-  (let [enddate (js/Date.)
-        startdate (get-month-duration enddate)]
-    (if-not (= "done" (:chart/state @store))
-      (get-chart-data-by-group!
-       (get-uid) (:exercises (nth (:exercise/groups @store) 0)) startdate enddate)))
+  (when (or (= nil (:chart/end-date @store) ) (= nil (:chart/start-date @store)))
+    (get-monthly-duration))
 
   (fn []
     (r/with-let [exercise (sub :groups [:exercise/groups
+                                        :chart/start-date
+                                        :chart/end-date
                                         :chart/state
                                         :chart/err-msg
                                         :chart/data])]
-    [:div.container
-     [head
+      (when (= "init" (:chart/state @store))
+        (get-chart-data-by-group!
+         (get-uid) (:exercises (nth (:exercise/groups @store) 0)) (:chart/start-date @exercise) (:chart/end-date @exercise)))
+      [:div.container
+       [head
       [:<>
        [:div.text-3xl.text-read.bg-blue-100.flex-1.flex.items-center
         [:div.pl-2 "Progessive Panel"]]]]
-     [:div.mt-4.mx-2
-      [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg
-       {:on-change #(on-change-select-handler %)}
+     ;; form
+     [:div.mt-4.mx-2.flex
+      [:section.bg-blue-100 {:class "w-1/2 mx-2"}
+       [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg.w-full
+        {:on-change #(on-change-select-handler % (:chart/start-date @exercise) (:chart/end-date @exercise))}
        (for [item (:exercise/groups @exercise)]
         ^{:key (:id item)} [:option {:value (:id item)} (:name item)])
        ]]
-     ;; chart part
+      [:section.bg-blue-100 {:class "w-1/2"}
+       [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg.w-full
+        [:option {:value "month"}  "month"]
+        [:option {:value "season"} "season"]
+        [:option {:value "year"} "year"]
+        ]]]
+           ;; chart part
      (if-not (= (:chart/state @exercise) "done")
              [:div.px-2.mt-4 "loading data, please wait......"]
              (for [it (:chart/data @exercise)]
