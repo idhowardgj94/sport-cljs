@@ -18,7 +18,7 @@
    [sports.actions :as actions :refer [get-chart-data-by-group!
                                        get-monthly-duration]]
    [cljs.spec.alpha :as s]
-   [sports.state :refer [sub unsub store get-uid]]
+   [sports.state :refer [subscribes store get-uid]]
    [reitit.frontend.easy :as rfe]
    [sports.firebase.exercise :as exercise]
    ["date-fns" :refer [endOfToday]]))
@@ -64,15 +64,15 @@
     (get-monthly-duration))
 
   (fn []
-    (r/with-let [exercise (sub :groups [:exercise/groups
-                                        :chart/start-date
-                                        :chart/end-date
-                                        :chart/state
-                                        :chart/err-msg
-                                        :chart/data])]
-      (when (= "init" (:chart/state @store))
+    (let [exercise (subscribes :exercise/groups
+                                      :chart/start-date
+                                      :chart/end-date
+                                      :chart/state
+                                      :chart/err-msg
+                                      :chart/data)]
+      (when (= "init" (:chart/state exercise))
         (get-chart-data-by-group!
-         (get-uid) (:exercises (nth (:exercise/groups @store) 0)) (:chart/start-date @exercise) (:chart/end-date @exercise)))
+         (get-uid) (:exercises (nth (:exercise/groups exercise) 0)) (:chart/start-date exercise) (:chart/end-date exercise)))
       [:div.container
        [head
       [:<>
@@ -82,8 +82,8 @@
      [:div.mt-4.mx-2.flex
       [:section.bg-blue-100 {:class "w-1/2 mx-2"}
        [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg.w-full
-        {:on-change #(on-change-select-handler % (:chart/start-date @exercise) (:chart/end-date @exercise))}
-       (for [item (:exercise/groups @exercise)]
+        {:on-change #(on-change-select-handler % (:chart/start-date exercise) (:chart/end-date exercise))}
+       (for [item (:exercise/groups exercise)]
         ^{:key (:id item)} [:option {:value (:id item)} (:name item)])
        ]]
       [:section.bg-blue-100 {:class "w-1/2"}
@@ -93,10 +93,10 @@
         [:option {:value "year"} "year"]
         ]]]
            ;; chart part
-     (if-not (= (:chart/state @exercise) "done")
+     (if-not (= (:chart/state exercise) "done")
              [:div.px-2.mt-4 "loading data, please wait......"]
-             (for [it (:chart/data @exercise)]
+             (for [it (:chart/data exercise)]
              ^{:key (:name it)} [:div.mx-2.mt-4.text-xl.text-bold (:name it)
                                  [:div.mt-2.mx-2 {:style {:height "250px" :width "100%"} }
                                   [chart (:data it)]]]))]
-    (finally (unsub ::groups)))))
+    )))

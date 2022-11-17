@@ -56,7 +56,7 @@
           (swap! store assoc :auth? true))
         (do ;; TODO: it can abstract to a event
             (swap! store assoc :user nil)
-            (swap! store assoc :auth? false))) 
+            (swap! store assoc :auth? false)))
       (rfe/push-state :index))))
 
 #_((defn create-user

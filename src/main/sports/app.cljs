@@ -1,12 +1,18 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
-            [sports.route :refer [init! match]]
+            [reagent.core :as core]
+            [sports.route :refer [init!]]
+            [sports.state :refer [store]]
             [cljs.spec.alpha :as s]
             [cljss.core :as css]
             [sports.firebase.setup :refer [init-app]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
-;; TODO: allow if asserts false throw error
+(def functional-compiler (reagent.core/create-compiler {:function-components true}))
+
+;; Setting compiler as the default
+(core/set-default-compiler! functional-compiler)
+
 (s/check-asserts true)
 
 (goog-define ENV "production")
@@ -16,9 +22,9 @@
 (defn app
   [] 
   [:div
-   (if @match
-     (let [view (:view (:data @match))]
-       [view @match])
+   (if (@store :match)
+     (let [view (:view (:data (@store :match)))]
+       [view (@store :match)])
      "Not found")])
 
 ;; start is called by init and after code reloading finishes
@@ -40,3 +46,8 @@
 ;; this is called before any code is reloaded
 (defn ^:dev/before-load stop []
   (js/console.log "stop"))
+
+#_(
+   (doc css/remove-styles!)
+   (require '[cljs.repl :refer [doc]])
+   ,)

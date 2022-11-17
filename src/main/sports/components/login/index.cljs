@@ -3,7 +3,7 @@
    [cljss.core :refer-macros [defstyles]]
    [reitit.frontend.easy :as rfe]
    [sports.components.login.api :as a :refer [login?]]
-   [sports.state :refer [store]]))
+   [sports.state :refer [store subscribe]]))
 
 (defstyles card-center
   []
@@ -21,10 +21,6 @@
       (.-value)))
 
 (defn login [_]
-  (let [auth? (:auth? @store)] 
-    (when (nil? auth?) (rfe/replace-state :index)))
-  
-  [:div.xl:container.mx-auto.px-4.flex {:class (card-center)}
    [:div.max-w-xl.rounded.shadow-lg.mx-auto.flex-1
     [:h1.text-3xl.text-center "Login"]
     [:form.m-2
@@ -38,4 +34,4 @@
        :on-click #(do (.preventDefault %)
                       (let [account (get-form-value % "account")
                             password (get-form-value % "password")]
-                        (login? account password)))} "Login"]]]])
+                        (login? account password)))} "Login"]]])
