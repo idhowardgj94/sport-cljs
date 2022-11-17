@@ -6,7 +6,6 @@
    [sports.state :as state :refer [store]]
    [sports.firebase.chart :as c]))
 
-
 (defn skip-login!
   [bool]
   (case bool

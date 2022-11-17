@@ -11,6 +11,7 @@
            :app nil
            :user nil
            :exercise/groups []
+           :exercise/choose-date {:show false :date (js/Date.)}
            ;; "loading" "success" "error" "init"
            :chart/start-date nil
            :chart/end-date nil

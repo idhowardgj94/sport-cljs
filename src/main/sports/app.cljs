@@ -1,5 +1,6 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
+            [reagent.core :as core]
             [sports.route :refer [init!]]
             [sports.state :refer [store]]
             [cljs.spec.alpha :as s]
@@ -7,7 +8,11 @@
             [sports.firebase.setup :refer [init-app]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
-;; TODO: allow if asserts false throw error
+(def functional-compiler (reagent.core/create-compiler {:function-components true}))
+
+;; Setting compiler as the default
+(core/set-default-compiler! functional-compiler)
+
 (s/check-asserts true)
 
 (goog-define ENV "production")

@@ -11,7 +11,8 @@
 (defn shadow-cljs-start!
   []
   (server/start!)
-  (shadow/repl :dev))
+  )
+
 (comment
   ;; quit cljs
   :cljs/quit
@@ -20,3 +21,5 @@
 (defn shadow-cljs-stop!
    []
    (server/stop!))
+
+(shadow-cljs-start!)
