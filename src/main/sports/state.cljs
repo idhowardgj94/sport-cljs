@@ -3,7 +3,10 @@
    [reagent.core :as r]))
 
 (def store
-  (r/atom {:auth? nil
+  ;; Note: auth may be "loading", "true" or "false"
+  (r/atom {:auth? "loading"
+           ;; this is route store.
+           :match nil
            :validate-msg nil
            :app nil
            :user nil
@@ -14,18 +17,17 @@
            :chart/state "init"
            :chart/err-msg nil
            :chart/data []}))
+(:chart/state @store)
+(defn subscribes
+  "subscribe store by key
+  This is worked. so sub function deprecated
+  due to this implementation is more simple to use."
+  [& keys]
+  (select-keys @store keys))
 
-(defn sub
-  [id keys]
-  (let [subject (r/atom (select-keys @store keys))]
-  (add-watch store id (fn [_ _ old new]
-                  (reset! subject (select-keys @store keys))))
-  subject))
-
-(defn unsub
-  [id]
-  (remove-watch store id))
-(remove-watch store ::tets)
+(defn subscribe
+  [key]
+  (get @store key))
 
 (defn get-uid
   "get the uid from store."

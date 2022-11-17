@@ -3,12 +3,12 @@
 ok, lets play something nice....
 
 
-** TODO Setup emacs + cider environment.
+** DONE Setup emacs + cider environment.
 
   - [X] try to open project in emacs.
-  - [ ] run cider in emacs.
-  - [ ] familar cider + emacs + cljs workflow.
-  - [ ] Add new feature to Sports App
+  - [X] run cider in emacs.
+  - [X] familar cider + emacs + cljs workflow.
+  - [X] Add new feature to Sports App
 
 
  ** Note.

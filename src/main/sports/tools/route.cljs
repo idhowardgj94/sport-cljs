@@ -1,15 +1,6 @@
 (ns sports.tools.route 
   (:require [reitit.frontend :as rf]))
 
-;; route helper function
-;; DEPRECATED: use match-by-name! instead of match-by-path
-(defn get-sub-path
-  "given router, return subpath prefix by /"
-  [match]
-  (as-> (:path (:parameters match)) $
-      (first $)
-      (get $ 1)
-      (str "/" $)))
 
 (defn deliver-query
   "aim to pass query down to sub router"

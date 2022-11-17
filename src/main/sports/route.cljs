@@ -4,37 +4,62 @@
             [reitit.frontend.easy :as rfe]
             [reitit.coercion.spec :as rss]
             [spec-tools.data-spec :as ds]
-            [sports.state :refer [store]]
+            [sports.state :refer [store subscribe]]
             [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
             [sports.components.login.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
             [sports.components.chart-page.index :refer [chart-page]]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
-
-(defonce match (r/atom nil))
-
+#_(require '[cljs.repl :refer [doc]])
 (defn auth-p?
   "check if this user login or not"
-  [] 
-  (when (= false (:auth? @store)) 
-    (rfe/push-state :login))
-  (when (= true (:auth? @store))
-    (rfe/push-state :main-page {:page-name :record}))
-  [:div (str "loading...")])
-
+  []
+  (case (subscribe :auth?)
+    true (do (print "world")
+             (rfe/push-state :main-page {:page-name :record}))
+    false (do (print "hello")
+              (rfe/push-state :login))
+    "loading" [:div (str "loading....")]
+    (rfe/push-state :login)))
 
 (defn- new-router
   [r]
   (rf/router r {:data {:coercion rss/coercion}}))
 
+(defn login-middleware
+  "check the auth pass or not.
+  if login, than goto main-page
+  "
+  [page]
+  (js/console.log "inside login")
+  (if (subscribe :auth?)
+    (do (print "inside true")
+        ;; Note: choose exercise is the main page
+        (rfe/replace-state :main-page {:page-name :choose-exercise}))
+    page))
+(comment
+  (subscribe :auth?)
+ (rfe/push-state :index)
+ (swap! store assoc :auth? true)
+ ,)
+
+(defn guard-middleware
+  "this is the guard middlewrae
+  if the user not login
+  redirect to login."
+  [page]
+  (js/console.log "inside guard")
+  (if (subscribe :auth?)
+    page
+    (rfe/push-state :login)))
 (def routes
   [["/"
     {:name :index
      :view auth-p?}]
    ["/login"
     {:name :login
-     :view login}]
+     :view #(login-middleware login)}]
    ["/main-page/:page-name"
     {:name :main-page
      :parameters {:path {:page-name keyword?}}
@@ -52,11 +77,12 @@
                ["/chart"
                 {:name :chart
                  :view chart-page}]])
-     :view main-page}]])
+     :view #(guard-middleware main-page)}]])
 
 (defn init! []
+  "init is about route setting."
   (rfe/start! 
    (new-router routes)
-   (fn [m] (reset! match m))
+   (fn [m] (swap! store assoc  :match m))
     ;; set to false to enable HistoryAPI
    {:use-fragment true}))
