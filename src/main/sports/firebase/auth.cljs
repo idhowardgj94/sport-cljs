@@ -16,13 +16,11 @@
 
 (defn- connect-error!
   []
-
   (js/Error. "Didn't connect to firebase service."))
 
 (defn set-rememberme
   []
   ;; TODO: give option set remeber or not
-  (js/console.log "inside set-rememberme")
   (setPersistence (get-auth) browserLocalPersistence))
 
 (defn login
@@ -49,7 +47,7 @@
   []
   (current-state!)
   (onAuthStateChanged (get-auth)
-    (fn [user] 
+    (fn [user]
       (if (some? user)
         (do ;; TODO: it can abstract to an event
           (swap! store assoc :user (js->clj user))

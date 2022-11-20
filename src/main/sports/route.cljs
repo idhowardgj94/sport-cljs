@@ -38,11 +38,6 @@
         ;; Note: choose exercise is the main page
         (rfe/replace-state :main-page {:page-name :choose-exercise}))
     page))
-(comment
-  (subscribe :auth?)
- (rfe/push-state :index)
- (swap! store assoc :auth? true)
- ,)
 
 (defn guard-middleware
   "this is the guard middlewrae
