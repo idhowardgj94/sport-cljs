@@ -137,6 +137,7 @@
   (delete-exercise-by-id! (:id it))
   (reset! records (->> @records
                        (filter #(not= (:id %) (:id it))))))
+
 (defn record-form-page
   "record exercise form"
   [match]
@@ -145,7 +146,6 @@
         date (get-in @state/store [:exercise/choose-date :date])]
 
     (useEffect (fn []
-                 (js/console.log "hello")
                 (-> (get-exercises-by-date date exercise-id)
                     (.then #(reset! records %))))
                (array date))

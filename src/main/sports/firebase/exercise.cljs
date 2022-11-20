@@ -13,7 +13,6 @@
 
 (defn add-exercise!
   [data]
-  (js/console.log (clj->js data))
   (-> (collection (get-firestore) "records")
       (addDoc (clj->js data ))))
 
@@ -21,17 +20,17 @@
   [uid date exercise-id]
   (let [collection (collection (get-firestore) "records")
         query (query collection
-                     (where "date" "==" (js/Date. date))
+                     (where "date" "==" date)
                      (where "exerciseId" "==" exercise-id)
                      (where "uid" "==" uid))]
     (-> (getDocs query)
         (.then (fn [data]
                  (as-> (.-docs data) $
-                     (.map $ #(let [data (.data %)]
-                                (o/set data "id" (.-id %))
-                                data))
-                     (js->clj $ :keywordize-keys true)
-                     (map model/newExerciseRecord $))))
+                   (.map $ #(let [data (.data %)]
+                              (o/set data "id" (.-id %))
+                              data))
+                   (js->clj $ :keywordize-keys true)
+                   (map model/newExerciseRecord $))))
         (.catch #(do (js/console.error %))))))
 
 (defn delete-exercise!
