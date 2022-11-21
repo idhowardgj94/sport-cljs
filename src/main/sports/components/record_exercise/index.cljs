@@ -14,7 +14,9 @@
             get-group-name-by-id
             get-today]]
    [sports.components.header.index :refer [head-layout head]]
-   [sports.models.exercise :as model :refer [group]]))
+   [sports.models.exercise :as model :refer [group]]
+   [cljs.core.async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]))
 
 ;; TODO: exercise-meta used to store the input meta data.
 ;; may be correct the world to record-exercise-meta.
@@ -25,7 +27,6 @@
 (defn switch-choose-date!
   [flag]
   "toggle the choose-date panel to show or not"
-  (js/console.log "inside toggle-choose-date")
   (let [{:keys [show]} (state/subscribe :exercise/choose-date)]
     (swap! state/store assoc-in [:exercise/choose-date :show] flag)))
 
@@ -109,17 +110,21 @@
       (.getElementById id)
       (.-value)))
 
-(defn submit-record-handler
-  "records: r/atom"
+(def number-count (r/atom 1))
+(defn submit-record-handler!
+  "records: r/atom
+  orders: r/atom"
   [e records]
   (.preventDefault e)
 
   (let [repeat (get-form-by-name e "repeat")
         weight (get-form-by-name e "weight")
-        data (conj @exercise-meta {:weight weight :repeat repeat :date (js/Date. (get-form-by-id "date"))})]
+        data (conj @exercise-meta {:order @number-count :weight weight :repeat repeat :date (js/Date. (get-form-by-id "date"))})]
     (-> (add-exercise-record! data)
         (.then #(swap! records (fn [store]
-                                 (concat store (vector (assoc data :id (.-id %))))))))))
+                                 (concat store (vector (assoc data :id (.-id %))))))))
+    (swap! number-count inc)
+    ))
 
 (defn get-exercise-name-by-id
   "
@@ -138,6 +143,17 @@
   (reset! records (->> @records
                        (filter #(not= (:id %) (:id it))))))
 
+(defn get-ordered-data
+  "get erdered data, will order by order field
+  if not exist, will ad a order field with orginal order"
+  [data]
+  (let [first (first data)]
+    (case (:order first)
+      nil     (->> (map-indexed list data)
+                   (map (fn [[idx it]] (assoc it :order (+ idx 1)))))
+      (->> data
+           (sort-by :order)))))
+
 (defn record-form-page
   "record exercise form"
   [match]
@@ -145,10 +161,20 @@
         name (get-exercise-name-by-id exercise-id)
         date (get-in @state/store [:exercise/choose-date :date])]
 
-    (useEffect (fn []
-                (-> (get-exercises-by-date date exercise-id)
-                    (.then #(reset! records %))))
-               (array date))
+    (useEffect
+     (fn []
+       (go
+         (try
+           (let [data (<p! (get-exercises-by-date date exercise-id))]
+             (->> (get-ordered-data data)
+                  (reset! records))
+             (let [orders (->> @records
+                               (map #(:order %)))
+                   count (apply max orders)]
+               (reset! number-count (+ 1 count))))
+           (catch js/Error err (js/console.log err)))))
+     (array date))
+
     [:div.container
      [record-head name]
      [:div.py-4.rounded.shadow-sm
@@ -166,18 +192,18 @@
         [:div.flex-1
          [:input.mr-4.rounded-xl {:type "number" :placeholder "rep" :name "repeat"}]]]
        [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
-        {:on-click #(submit-record-handler % records)
+        {:on-click #(submit-record-handler! % records)
          :type "submit"} "Submit"]]]
      [:section
       [:div.text-lg.text-center.font-medium.p-2.bg-blue-100 "Records"]
       [:div
-       (for [it (map-indexed vector @records)]
-         (if (= (second it) "invalid")
-           ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+       (for [it @records]
+         (if (= it "invalid")
+           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
                                [:div.flex-1 "Something went wrong with the data."]]
-           ^{:key (first it)} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                               [:div.flex-1 (str "Set " (+ 1 (first it)))]
-                               [:div.flex-1 (str (:weight (last it)) "KG")]
-                               [:div.flex-1  (str (:repeat (last it)) "Rpt")]
+           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                               [:div.flex-1 (str "Set " (:order it) )]
+                               [:div.flex-1 (str (:weight it) "KG")]
+                               [:div.flex-1  (str (:repeat it) "Rpt")]
                                [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
-                                {:on-click #(delete-handler! records (last it))} "Delete"]]))]]]))
+                                {:on-click #(delete-handler! records it)} "Delete"]]))]]]))
