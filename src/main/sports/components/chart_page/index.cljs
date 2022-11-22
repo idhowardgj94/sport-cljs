@@ -16,12 +16,15 @@
    [sports.firebase.chart :as api]
    [reagent.core :as r]
    [sports.actions :as actions :refer [get-chart-data-by-group!
-                                       get-monthly-duration]]
+                                       get-season-duration!
+                                       get-monthly-duration!
+                                       get-year-duration!]]
    [cljs.spec.alpha :as s]
    [sports.state :refer [subscribes store get-uid]]
    [reitit.frontend.easy :as rfe]
    [sports.firebase.exercise :as exercise]
-   ["date-fns" :refer [endOfToday]]))
+   ["date-fns" :refer [endOfToday addMonths]]
+   ["react" :refer [useEffect]]))
 
 (defn chart
   [data]
@@ -45,9 +48,6 @@
     [:option "Back"]
     [:option "Chest"]]])
 
-;;@store
-;(js/console.log (:user @store))
-;(print (.-uid (:user @store)))
 (defn on-change-select-handler
   [e startdate enddate]
   (let [group-id (.-value (.-target e))
@@ -55,13 +55,24 @@
     (get-chart-data-by-group!
      (get-uid) exercises startdate enddate)))
 
+(defn on-change-duration-handler
+  "change duration handler. will change the store duration by type
+  e: event
+  type: year, season, month"
+  [e]
+  (let [val (.-value (.-target e))]
+    (case val
+      "year" (get-year-duration!)
+      "month" (get-monthly-duration!)
+      "season" (get-season-duration!))))
+
 (defn chart-page
   []
   ;; get the default chart data
   ;; I assme that the default group is the first item of the groups array.
   ;; TODO: choose duration
   (when (or (= nil (:chart/end-date @store) ) (= nil (:chart/start-date @store)))
-    (get-monthly-duration))
+    (get-monthly-duration!))
 
   (fn []
     (let [exercise (subscribes :exercise/groups
@@ -70,9 +81,15 @@
                                       :chart/state
                                       :chart/err-msg
                                       :chart/data)]
-      (when (= "init" (:chart/state exercise))
+      (when (or  (= "reload" (:chart/state exercise))
+                 (= "init" (:chart/state exercise)))
         (get-chart-data-by-group!
          (get-uid) (:exercises (nth (:exercise/groups exercise) 0)) (:chart/start-date exercise) (:chart/end-date exercise)))
+
+      (useEffect (fn []
+                   (swap! store assoc :chart/state "reload")
+                   ,) (array (:chart/start-date exercise) (:chart/end-date exercise)))
+
       [:div.container
        [head
       [:<>
@@ -88,9 +105,10 @@
        ]]
       [:section.bg-blue-100 {:class "w-1/2"}
        [:select.mg-gray-50.border.border-gray-300.text-gray-900.text-sm.rounded-lg.w-full
-        [:option {:value "month"}  "month"]
-        [:option {:value "season"} "season"]
-        [:option {:value "year"} "year"]
+        {:on-change #(on-change-duration-handler %)}
+        [:option {:value "month"}  "Month"]
+        [:option {:value "season"} "Season"]
+        [:option {:value "year"} "Year"]
         ]]]
            ;; chart part
      (if-not (= (:chart/state exercise) "done")
