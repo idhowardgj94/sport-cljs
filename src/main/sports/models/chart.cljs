@@ -34,7 +34,6 @@
   [data]
   (group-by #(util/get-date-format (convert-to-date (.-seconds (:date %)))) data))
 
-;; Done average
 (defn- get-average-by-key
   "get the average value by key
   assume that type can trasform to integer"
@@ -48,13 +47,14 @@
 
 (defn get-chart-data
   [group-data]
-  (for [[key val]  group-data]
-    (let [weight-avg (get-average-by-key val :weight)
-          repeat-avg (get-average-by-key val :repeat)]
-      (newByDateRecord
-       {:date key
-        :weight weight-avg
-        :repeat repeat-avg}))))
+  (let [data (for [[key val]  group-data]
+               (let [weight-avg (get-average-by-key val :weight)
+                     repeat-avg (get-average-by-key val :repeat)]
+                 (newByDateRecord
+                  {:date key
+                   :weight weight-avg
+                   :repeat repeat-avg})))]
+    (->> data
+         (sort-by :date))
+    ))
 
-;; need to *1000 to covert seconds -> milliseconds.
-;; Done

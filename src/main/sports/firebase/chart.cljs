@@ -7,17 +7,19 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [sports.models.chart :as model]
    ["firebase/firestore" :as firestore :refer
-    [setDoc doc collection addDoc getDocs getFirestore getDoc where query deleteDoc]]
+    [setDoc doc collection addDoc getDocs getFirestore getDoc where query orderBy deleteDoc]]
    ))
 
 (defn get-exercise-by-startdate-and-enddate
   [uid exercise-id start end]
   (let [collection (collection (getFirestore) "records")
         query (query collection
+                     (orderBy "date")
                      (where "uid" "==" uid)
                      (where "exerciseId" "==" exercise-id)
                      (where "date" ">=" start)
-                     (where "date" "<=" end))]
+                     (where "date" "<=" end)
+                     )]
     (-> (getDocs query)
         (.then #(organize-js-data %))
         (.then #(json->edn %))
