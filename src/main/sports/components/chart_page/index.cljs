@@ -81,13 +81,11 @@
                                       :chart/state
                                       :chart/err-msg
                                       :chart/data)]
-      (when (or  (= "reload" (:chart/state exercise))
-                 (= "init" (:chart/state exercise)))
-        (get-chart-data-by-group!
-         (get-uid) (:exercises (nth (:exercise/groups exercise) 0)) (:chart/start-date exercise) (:chart/end-date exercise)))
 
       (useEffect (fn []
                    (swap! store assoc :chart/state "reload")
+                   (get-chart-data-by-group!
+                    (get-uid) (:exercises (nth (:exercise/groups exercise) 0)) (:chart/start-date exercise) (:chart/end-date exercise))
                    ,) (array (:chart/start-date exercise) (:chart/end-date exercise)))
 
       [:div.container

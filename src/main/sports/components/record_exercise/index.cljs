@@ -170,7 +170,7 @@
                   (reset! records))
              (let [orders (->> @records
                                (map #(:order %)))
-                   count (apply max orders)]
+                   count (or (apply max orders) 0)]
                (reset! number-count (+ 1 count))))
            (catch js/Error err (js/console.log err)))))
      (array date))
