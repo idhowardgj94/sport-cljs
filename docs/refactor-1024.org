@@ -1,0 +1,10 @@
+#+title: Refactor 1024
+
+* TODO: List item
+
+- [ ] Collect all state into one state file.
+- [ ] Rewrite login architecture
+- [ ] Organize compile part of code
+- [ ] Envirorment variable setting.
+- [ ] UT ?
+- [ ] integrant

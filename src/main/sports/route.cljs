@@ -6,7 +6,7 @@
             [spec-tools.data-spec :as ds]
             [sports.state :refer [store subscribe]]
             [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
-            [sports.components.login.index :refer [login]]
+            [sports.components.login-v2.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
             [sports.components.chart-page.index :refer [chart-page]]
             [cljs.core.async :refer [go]]
@@ -16,9 +16,9 @@
   "check if this user login or not"
   []
   (case (subscribe :auth?)
-    true (do (print "world")
+    true (do
              (rfe/push-state :main-page {:page-name :record}))
-    false (do (print "hello")
+    false (do
               (rfe/push-state :login))
     "loading" [:div (str "loading....")]
     (rfe/push-state :login)))
@@ -32,9 +32,8 @@
   if login, than goto main-page
   "
   [page]
-  (js/console.log "inside login")
   (if (subscribe :auth?)
-    (do (print "inside true")
+    (do
         ;; Note: choose exercise is the main page
         (rfe/replace-state :main-page {:page-name :choose-exercise}))
     page))
@@ -44,10 +43,12 @@
   if the user not login
   redirect to login."
   [page]
-  (js/console.log "inside guard")
   (if (subscribe :auth?)
-    page
-    (rfe/push-state :login)))
+    (do
+      page)
+    (do
+      (rfe/push-state :login))))
+
 (def routes
   [["/"
     {:name :index

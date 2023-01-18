@@ -1,5 +1,6 @@
 (ns sports.state
   (:require
+   [reitit.frontend.easy :as rfe]
    [reagent.core :as r]))
 
 (def store
@@ -34,3 +35,16 @@
   "get the uid from store."
   []
   (.-uid (:user @store)))
+
+(defn login-clear-validage-msg
+  []
+  (when (@store :validate-msg)
+    (swap! store assoc :validate-msg nil)))
+#_(
+   (require '[cljs.repl :refer [doc]])
+   (doc swap!)
+   (rfe/push-state :login)
+   (rfe/push-state :login)
+   (swap! store assoc :auth? nil)
+   (js/console.log "123")
+   ,)

@@ -9,14 +9,14 @@
   [account password]
   (login account password
          #(do (login-event! %)
-              (js/console.log (clj->js @store))
-              (js/console.log "inside then")
               (rfe/push-state :index))))
 
 (defn login?
   "call firebase login to auth"
-  [account password]
-  (-> (set-rememberme)
-      (.then (fn [] (login-action account password))))
+  [account password remember?]
+  (if remember?
+    (-> (set-rememberme)
+        (.then (fn [] (login-action account password))))
+    (login-action account password))
  )
 

@@ -13,6 +13,7 @@
     buddy/buddy-auth {:mvn/version "3.0.323"}
     clj-commons/cljss {:mvn/version  "1.6.4"}
     metosin/spec-tools {:mvn/version "0.10.5"}
+    arttuka/reagent-material-ui {:mvn/version "5.10.1-0"}
     cider/cider-nrepl {:mvn/version "0.28.5"}
     refactor-nrepl/refactor-nrepl {:mvn/version "3.5.5"}
     org.clojure/tools.namespace {:mvn/version "1.3.0"}
