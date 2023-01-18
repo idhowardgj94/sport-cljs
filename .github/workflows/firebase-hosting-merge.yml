@@ -15,9 +15,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '8'
+          java-version: '11'
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@7.0
+        uses: DeLaGuardo/setup-clojure@9.5
         with:
           # Install just one or all simultaneously
           # The value must indicate a particular version of the tool, or use 'latest'
