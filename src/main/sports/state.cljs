@@ -11,6 +11,7 @@
            :validate-msg nil
            :app nil
            :user nil
+           :index-db/db nil
            :exercise/groups []
            :exercise/choose-date {:show false :date (js/Date.)}
            ;; "loading" "success" "error" "init"
@@ -19,7 +20,18 @@
            :chart/state "init"
            :chart/err-msg nil
            :chart/data []}))
-(:chart/state @store)
+
+(defn set-index-db
+  "set indexdb into store"
+  [db]
+  (swap! store assoc :index-db/db db))
+
+(defn get-index-db
+  "get-index-db from store"
+  []
+  (get @store :index-db/db)
+  )
+
 (defn subscribes
   "subscribe store by key
   This is worked. so sub function deprecated

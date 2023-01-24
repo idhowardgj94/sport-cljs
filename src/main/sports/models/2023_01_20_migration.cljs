@@ -1,7 +1,15 @@
 (ns main.sports.models.a-2023-01-23-migration
   (:require [spec-tools.core :as st]
             [cljs.spec.alpha :as s]
-            [spec-tools.data-spec :as ds]))
+            [sports.models.exercise :as model]
+            [goog.object :as o]
+            ["regenerator-runtime/runtime"]
+            [sports.firebase.setup :refer [init-app]]
+            ["firebase/firestore" :as firestore :refer [setDoc doc collection addDoc getDocs getFirestore getDoc where query deleteDoc]]
+            [spec-tools.data-spec :as ds]
+            [cljs.core.async :refer [go]]
+            [cljs.core.async.interop :refer-macros [<p!]]
+            [sports.util :as util]))
 
 
  ;; add exercise_group and exercises into db.
@@ -92,10 +100,35 @@
     (swap! exercise-data conj (assoc (select-keys it [:id :name]) :gid (g :id)))
     (print it "\n")))
 
-(try
-  (throw (js/Error. "Oops"))
-  (catch js/Error e
-    (print "oops")))
+(defn get-docs-with-id
+  [data]
+  (js/console.log "inside get-docs-with-id")
+  (as-> (.-docs data) $
+    (.map $ #(let [data (.data %)]
+               (o/set data "id" (.-id %))
+               data))))
+
+;; add groups into firebase
+(go
+  (let [collection (collection (getFirestore) "groups")]
+    (try
+      (doseq [it @group-data]
+             (print it)
+             (let [res (<p! (addDoc collection (clj->js it)))]
+               (js/console.log res)))
+      (catch js/Error e (js/console.log e)))))
+
+(go
+  (let [collection (collection (getFirestore) "exerciseItems")]
+    (try
+      (doseq [it @exercise-data]
+        (let [res (<p! (addDoc collection (clj->js it)))]
+          (js/console.log res)))
+      (catch js/Error e (js/console.log e)))))
+;; add exercise data into firebase
+
+@group-data
+@exercise-data
 #_(
    (require '[cljs.repl :refer [doc]])
    (s/explain group-spec {:id 123 :name "aoeeaooae"})

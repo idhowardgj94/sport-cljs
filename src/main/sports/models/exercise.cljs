@@ -50,6 +50,24 @@
                :name "dumbell incline fly"}
               {:id "dumbell decline-fly"
                :name "dumbell decline fly"}]}])
+;; TODO: groups -> group
+(def groups
+  {:id int?
+   :name string?})
+
+(def exercise-item
+  {:id string?
+   :name string?})
+
+(def group-spec
+  (ds/spec
+   {:name ::group
+    :spec groups}))
+
+(def exercise-item-spec
+  (ds/spec {:name ::exercise-item
+            :spec exercise-item}))
+
 ;; TODO: move to other place
 (actions/set-exercise-group! group)
 ;; Object { groupId: 1, exerciseId: "front-squat", weight: "50", repeat: "10", date: "2022-09-14", uid: "mgVoZfrY3SCaacfGeDl6ykpAiZSx" }
