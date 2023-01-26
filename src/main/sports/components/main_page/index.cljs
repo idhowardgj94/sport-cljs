@@ -26,11 +26,9 @@
         loading (subscribe :exercise/loading)]
     (if (= loading "success")
       (do
-        (js/console.log "inside if~~~")
         [:div {:class [(content)]}
          [view match]])
       (do
-        (js/console.log "inside else~~~")
         [:div {:class [(content)]}
          "loading...."]))))
 

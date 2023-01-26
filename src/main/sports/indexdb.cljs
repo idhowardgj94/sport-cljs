@@ -10,7 +10,6 @@
 ;; (def exercises (atom (transient [])))
 (defn set-exercises-from-indexdb
   [e]
-  (js/console.log "primite" e)
   (let [cursor (-> (.-target e)
                    (db/create-request)
                    (db/result)
@@ -92,8 +91,6 @@
 
 (defn handle-success
   [idb]
-  (js/console.log "inside success")
-  (js/console.log idb)
   (sports.state/set-index-db
    (-> idb
        (db/result)
@@ -108,7 +105,6 @@
 (defn connect-index-db
   "setup indexdb, and store the indexdb object in the indexdb atom"
   []
-  (js/console.log "inside connect-index-db")
   (when-not (state/get-index-db)
     (as-> (db/open "exercises" 1) $
         (db/on $ "error" handle-error)
@@ -118,7 +114,7 @@
 
 (defn setup-index-db
   []
-  (connect-index-db)
+  (js/setTimeout #(connect-index-db) 1000)
   )
 
 
