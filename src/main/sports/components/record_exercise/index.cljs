@@ -14,7 +14,7 @@
             get-group-name-by-id
             get-today]]
    [sports.components.header.index :refer [head-layout head]]
-   [sports.models.exercise :as model :refer [group]]
+   [sports.state]
    [cljs.core.async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]))
 
@@ -37,7 +37,6 @@
          {:show false
           :date date}))
 
-(:exercise/choose-date @state/store)
 (defn record-head
   "define head of record exercise page"
   ([n]
@@ -67,15 +66,16 @@
 (defn record-exercise-page
   "content for record exercise list"
   []
-  [:div.container
-   [record-head]
-   [:section.text-md.mx-2.my-4.py-2 "what do you wont to do today??"]
-   [:div.mt-2
-    (for [g group]
-      ^{:key (:id g)}
-      [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
-       [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
-        {:on-click #(click-item-handler! (:id g))} (:name g)]])]])
+  (let [group (state/get-exercise-groups)]
+    [:div.container
+     [record-head]
+     [:section.text-md.mx-2.my-4.py-2 "what do you wont to do today??"]
+     [:div.mt-2
+      (for [g group]
+        ^{:key (:id g)}
+        [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
+         [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
+          {:on-click #(click-item-handler! (:id g))} (:name g)]])]]))
 
 (defn click-record-handler!
   [id]

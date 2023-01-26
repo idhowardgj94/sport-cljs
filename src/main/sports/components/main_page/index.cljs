@@ -1,7 +1,7 @@
 (ns sports.components.main-page.index
   (:require [cljss.core :refer-macros [defstyles]]
             [sports.tools.route :refer [match-sub-path]]
-            [sports.state :refer [store]]
+            [sports.state :refer [store subscribe]]
             [clojure.string :refer [join]]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]))
@@ -22,9 +22,17 @@
 
 (defn content-view
   [match]
-  (let [view (:view (:data match))]
-    [:div {:class [(content)]}
-     [view match]]))
+  (let [view (:view (:data match))
+        loading (subscribe :exercise/loading)]
+    (if (= loading "success")
+      (do
+        (js/console.log "inside if~~~")
+        [:div {:class [(content)]}
+         [view match]])
+      (do
+        (js/console.log "inside else~~~")
+        [:div {:class [(content)]}
+         "loading...."]))))
 
 (defn deck-view
   []

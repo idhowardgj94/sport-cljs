@@ -12,15 +12,17 @@
            :app nil
            :user nil
            :index-db/db nil
+           :exercise/loading "loading"
            :exercise/groups []
            :exercise/choose-date {:show false :date (js/Date.)}
-           ;; "loading" "success" "error" "init"
            :chart/start-date nil
            :chart/end-date nil
            :chart/state "init"
            :chart/err-msg nil
            :chart/data []}))
 
+(defn get-exercise-groups []
+  (get @store :exercise/groups))
 (defn set-index-db
   "set indexdb into store"
   [db]

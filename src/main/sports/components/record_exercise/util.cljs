@@ -1,7 +1,7 @@
 (ns sports.components.record-exercise.util
   (:require
    ["date-fns" :as _]
-   [sports.models.exercise :refer [group]]))
+   [sports.state :refer [get-exercise-groups]]))
 
 (defn get-date-format
   "Input: js/Date, output yyyy-mm-dd"
@@ -15,7 +15,7 @@
 
 (defn get-group-by-id
   [id]
-  (->> group
+  (->> (get-exercise-groups)
       (filter #(= (:id %) id))
       (first)))
 
@@ -34,7 +34,7 @@
 
 (defn get-exercises-by-group-id
   [id]
-  (->> group
+  (->> (get-exercise-groups)
        (filter #(= (:id %) (js/parseInt id)))
        (#(:exercises (nth % 0)))))
 

@@ -4,6 +4,9 @@
             [sports.route :refer [init!]]
             [sports.state :refer [store]]
             [cljs.spec.alpha :as s]
+            [sports.indexdb :refer [sync-firebase-exercise
+                                    get-firebase-exercise
+                                    setup-index-db]]
             [cljss.core :as css]
             [sports.firebase.setup :refer [init-app]])
   (:require-macros [sports.config :refer [firebase-config]]))
@@ -32,6 +35,7 @@
   ;; Note: this may break functionality of tailwindcss.
   ;; Need to find another solution to solve this
   (css/remove-styles!)
+  (setup-index-db)
   (init!)
   (init-app config ENV)
   (dom/render [app]

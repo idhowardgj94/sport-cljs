@@ -32,11 +32,6 @@
              (js->clj $ :keywordize-keys true))))
         )))
 
-
-#_(
-   (-> (get-groups)
-       (.then #(js/console.log %)))
-   ,)
 (defn get-exercise-items
   "get exercises by gid"
   [gid]
@@ -49,7 +44,6 @@
          (fn [data]
            (as-> (.-docs data) $
              (.map $ #(let [data (.data %)]
-                        (o/set data "id" (.-id %))
                         data))
              (js->clj $ :keywordize-keys true)))))))
 

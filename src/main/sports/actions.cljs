@@ -35,9 +35,17 @@
            :chart/end-date end
            :chart/start-date start)))
 
+(defn set-exercise-loading!
+  [val]
+  (swap! store assoc :exercise/loading val))
+
 (defn set-exercise-group!
   [groups]
   (swap! store #(assoc % :exercise/groups groups)))
+
+(defn update-exercise-group!
+  [f & vals]
+  (swap! store update :exercise/groups #(apply f % vals)))
 
 (defn get-chart-data-by-group!
   "get chart data by group
@@ -49,6 +57,7 @@
   (go
     (try
       (-> (->> exercises
+               ;; TODO: how this id -> gid not found?
                 (map #(-> (get-exercise-by-startdate-and-enddate uid (:id %) startdate enddate)
                           (.then (fn [data]
                                    (if-not (= (.-length (clj->js data)) 0)
