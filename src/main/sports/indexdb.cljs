@@ -7,44 +7,8 @@
             [cljs.core.async.interop :refer [<p!]]
             [sports.actions :as actions]))
 
-;; (def exercises (atom (transient [])))
-(defn set-exercises-from-indexdb
-  [e]
-  (let [cursor (-> (.-target e)
-                   (db/create-request)
-                   (db/result)
-                   )]
-    (if (nil? cursor)
-      (do
-        (actions/update-exercise-group! persistent!)
-        (actions/set-exercise-loading! "success"))
-      (do
-        (actions/update-exercise-group! conj!
-               (-> (db/create-cursor-with-value cursor)
-                   (db/value)
-                   (js->clj :keywordize-keys true)))
-        (-> (db/create-cursor-with-value cursor)
-            (db/continue))
-        ))
-    )
-  )
 
-(defn get-firebase-exercise
-  "get firebase exercise from indexdb"
-  []
-  (actions/set-exercise-loading! "loading")
-  (actions/set-exercise-group! (transient []))
-  (try
-    (let [index-db (state/get-index-db)
-          trans (db/transaction index-db ["exercises"] "readwrite")
-          store (db/object-store trans "exercises")]
-      (let [cur (-> (db/open-cursor store)
-                    (db/on "success" set-exercises-from-indexdb))]
-        )
-      )
-    (catch js/Error e (js/console.log e)))
-  )
-
+(declare get-firebase-exercise)
 (defn sync-firebase-exercise
   "sync firebase exercise to indexdb"
   []
@@ -71,6 +35,49 @@
       (get-firebase-exercise)
       (catch js/Error e (js/console.log e)))))
 
+;; (def exercises (atom (transient [])))
+(defn set-exercises-from-indexdb
+  [e]
+  (let [cursor (-> (.-target e)
+                   (db/create-request)
+                   (db/result)
+                   )]
+    (if (nil? cursor)
+      (do
+        (actions/update-exercise-group! persistent!)
+        (when (= (count (state/get-exercise-groups)) 0)
+          (js/console.log "inside handle-success when")
+          (sync-firebase-exercise)
+          )
+        (actions/set-exercise-loading! "success"))
+      (do
+        (actions/update-exercise-group! conj!
+                                        (-> (db/create-cursor-with-value cursor)
+                                            (db/value)
+                                            (js->clj :keywordize-keys true)))
+        (-> (db/create-cursor-with-value cursor)
+            (db/continue))
+        ))
+    )
+  )
+
+(defn get-firebase-exercise
+  "get firebase exercise from indexdb"
+  []
+  (actions/set-exercise-loading! "loading")
+  (actions/set-exercise-group! (transient []))
+
+  (try
+    (let [index-db (state/get-index-db)
+          trans (db/transaction index-db ["exercises"] "readwrite")
+          store (db/object-store trans "exercises")]
+      (let [cur (-> (db/open-cursor store)
+                    (db/on "success" set-exercises-from-indexdb))]
+        )
+      )
+    (catch js/Error e (js/console.log e)))
+  )
+
 
 
 
@@ -96,6 +103,7 @@
        (db/result)
        (db/create-database)))
   (get-firebase-exercise)
+
   )
 
 (defn handle-blocked
@@ -116,7 +124,6 @@
   []
   (js/setTimeout #(connect-index-db) 1000)
   )
-
 
 
 #_(
