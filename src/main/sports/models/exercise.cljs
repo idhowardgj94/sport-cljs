@@ -1,6 +1,5 @@
 (ns sports.models.exercise
   (:require [cljs.spec.alpha :as s]
-            [sports.actions :as actions]
             [spec-tools.core :as st]
             [spec-tools.data-spec :as ds]))
 

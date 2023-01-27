@@ -4,9 +4,15 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [sports.firebase.chart :refer [get-exercise-by-startdate-and-enddate]]
    [sports.state :refer [store]]
+   [sports.indexdb :as index-db]
    ["date-fns" :refer [endOfToday addMonths startOfYear endOfYear startOfToday endOfToday]]))
 
-;; chart_page actions
+(defn sync-from-firebase
+  "sync the exercise group data from firebase
+  and store it to firebase db"
+  []
+  (index-db/sync-firebase-exercise))
+
 (defn get-monthly-duration!
   "Aim to get monthly duration, start from today"
   []
@@ -35,17 +41,8 @@
            :chart/end-date end
            :chart/start-date start)))
 
-(defn set-exercise-loading!
-  [val]
-  (swap! store assoc :exercise/loading val))
 
-(defn set-exercise-group!
-  [groups]
-  (swap! store #(assoc % :exercise/groups groups)))
 
-(defn update-exercise-group!
-  [f & vals]
-  (swap! store update :exercise/groups #(apply f % vals)))
 
 (defn get-chart-data-by-group!
   "get chart data by group

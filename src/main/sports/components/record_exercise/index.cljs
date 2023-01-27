@@ -15,6 +15,7 @@
             get-today]]
    [sports.components.header.index :refer [head-layout head]]
    [sports.state]
+   [sports.actions :refer [sync-from-firebase]]
    [cljs.core.async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]))
 
@@ -47,6 +48,13 @@
         [:button.appearance-none.shadow-none.border-none
          {:on-click #(-> js/window (.-history) (.back))}  [:i.fa-angle-left.fa-xl.fa-solid]]
         [:p.text-xl.mx-2.py-2 n]]
+
+       [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
+        [:button.appearance-none.shadow-none.border-none
+         {:on-click #(sync-from-firebase)}
+         [:i.my-auto.fa-solid.fa-rotate.fa-xl]]
+        ]
+
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
          {:on-click #(switch-choose-date! true)}

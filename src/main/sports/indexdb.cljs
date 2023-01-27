@@ -1,14 +1,30 @@
 (ns sports.indexdb
   (:require [indexed.db :as db]
             [sports.state :as state]
-            [sports.actions :as actions]
             [sports.firebase.exercise :as fe]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer [<p!]]
-            [sports.actions :as actions]))
+            ))
 
 
 (declare get-firebase-exercise)
+
+
+(defn update-exercise-group!
+  "update :exercise/groups value from store
+  to provide function and vals"
+  [f & vals]
+  (swap! state/store update :exercise/groups #(apply f % vals)))
+
+
+(defn set-exercise-loading!
+  [val]
+  (swap! state/store assoc :exercise/loading val))
+
+(defn set-exercise-group!
+  [groups]
+  (swap! state/store #(assoc % :exercise/groups groups)))
+
 (defn sync-firebase-exercise
   "sync firebase exercise to indexdb"
   []
@@ -36,7 +52,12 @@
       (catch js/Error e (js/console.log e)))))
 
 ;; (def exercises (atom (transient [])))
+(def retry (atom false))
 (defn set-exercises-from-indexdb
+  "
+   if can't load data from index-db,
+   will retry once.a
+  "
   [e]
   (let [cursor (-> (.-target e)
                    (db/create-request)
@@ -44,17 +65,20 @@
                    )]
     (if (nil? cursor)
       (do
-        (actions/update-exercise-group! persistent!)
-        (when (= (count (state/get-exercise-groups)) 0)
-          (js/console.log "inside handle-success when")
+        (update-exercise-group! persistent!)
+        (when (and
+               (not @retry)
+               (= (count (state/get-exercise-groups)) 0))
+          (js/console.log "[INFO] try to get from firebase.")
+          (reset! retry true)
           (sync-firebase-exercise)
           )
-        (actions/set-exercise-loading! "success"))
+        (set-exercise-loading! "success"))
       (do
-        (actions/update-exercise-group! conj!
-                                        (-> (db/create-cursor-with-value cursor)
-                                            (db/value)
-                                            (js->clj :keywordize-keys true)))
+        (update-exercise-group! conj!
+                                (-> (db/create-cursor-with-value cursor)
+                                    (db/value)
+                                    (js->clj :keywordize-keys true)))
         (-> (db/create-cursor-with-value cursor)
             (db/continue))
         ))
@@ -62,10 +86,11 @@
   )
 
 (defn get-firebase-exercise
-  "get firebase exercise from indexdb"
+  "get firebase exercise from indexdb.
+  "
   []
-  (actions/set-exercise-loading! "loading")
-  (actions/set-exercise-group! (transient []))
+  (set-exercise-loading! "loading")
+  (set-exercise-group! (transient []))
 
   (try
     (let [index-db (state/get-index-db)
@@ -83,8 +108,8 @@
 
 
 (defn handle-error
-  []
-  (js/console.log "inside handle error"))
+  [e]
+  (js/console.log e "inside handle error!"))
 
 (defn handle-upgrade
   [e]
