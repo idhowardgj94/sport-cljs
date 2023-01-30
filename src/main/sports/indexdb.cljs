@@ -35,18 +35,20 @@
         ;; prepare exercises, which is group + exercises
           (doseq [group groups]
             (let [group-exercises (<p! (fe/get-exercise-items (:id group)))]
+              (js/console.log (clj->js group-exercises))
               (swap! groups' (fn [lt]
                                  (->> lt
                                       (map #(if (= (:id %) (:id group))
                                               (assoc % :exercises group-exercises)
                                               %)))))))
-
+          (js/console.log (clj->js @groups'))
           ;; add to index-db
           (doseq [group @groups']
             (let [index-db (state/get-index-db)
                   trans (db/transaction index-db ["exercises"] "readwrite")
                   store (db/object-store trans "exercises")]
-              (db/add store (clj->js group))
+              (js/console.log "inside doseq" (clj->js group))
+              (db/put store (clj->js group))
               )))
       (get-firebase-exercise)
       (catch js/Error e (js/console.log e)))))
