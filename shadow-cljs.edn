@@ -13,14 +13,17 @@
    :js-options {:resolve {"date-picker"
                           {:target :file
                            :file "public/date-picker.js"}}}
+   :build-options
+    {:ns-aliases
+     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}
    :compiler-options {:output-feature-set :es-next
                       :infer-externs :auto}
    :modules
    {:main
-    {:init-fn sports.app/init}}}
+    {:init-fn sports.new-app/init}}}
   :dev
   {:target :browser
-   :closure-defines {sports.app/ENV "development"
+   :closure-defines {sports.new-app/ENV "production"
                      goog.DEBUG true}
    :output-dir "public/js"
    :asset-path "/js"

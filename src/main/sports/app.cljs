@@ -1,7 +1,7 @@
 (ns sports.app
   (:require [reagent.dom :as dom]
             [reagent.core :as core]
-            [sports.route :refer [init!]]
+            ;; [sports.route :refer [init!]]
             [sports.state :refer [store]]
             [cljs.spec.alpha :as s]
             [sports.indexdb :refer [sync-firebase-exercise
@@ -36,7 +36,7 @@
   ;; Need to find another solution to solve this
   (css/remove-styles!)
   (setup-index-db)
-  (init!)
+  ;; (init!)
   (init-app config ENV)
   (dom/render [app]
               (.getElementById js/document "app")))
@@ -47,6 +47,7 @@
   ;; so it is available even in :advanced release builds
   (start))
 
+
 ;; this is called before any code is reloaded
 (defn ^:dev/before-load stop []
   (js/console.log "stop"))
@@ -54,4 +55,5 @@
 #_(
    (doc css/remove-styles!)
    (require '[cljs.repl :refer [doc]])
+   (start)
    ,)

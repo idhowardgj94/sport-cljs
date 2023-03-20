@@ -6,7 +6,6 @@
    [cljs.core.async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    ["regenerator-runtime/runtime"]
-   [sports.firebase.setup :refer [init-app]]
    ["firebase/firestore" :as firestore :refer [setDoc doc collection addDoc getDocs getFirestore getDoc getDocs where query deleteDoc]]
    ))
 ;; TODO: error handling
@@ -74,29 +73,3 @@
   (let [docRef (doc (getFirestore) "records" id)]
     (deleteDoc docRef)))
 
-(comment
-  (init-app)
-  (require '[clojure.tools.deps.alpha.repl :refer [add-libs]])
-  (require '[indexed.db :as db])
-  (defn handle-error
-    []
-    (js/console.log "inside handle error"))
-  (defn handle-block
-    []
-    (js/console.log "inside handle block"))
-  (defn handle-upgrade
-    []
-    (js/console.log "inside handle-upgrade"))
-  (defn handle-success
-    []
-    (js/console.log "inside success"))
-  (defn handle-blocked
-    []
-    (js/console.log "inside handle block"))
-  (do
-    (-> (db/open "mydb" 1)
-        (db/on "error" handle-error)
-        (db/on "blocked" handle-blocked)
-        (db/on "upgradeneeded" handle-upgrade)
-        (db/on "success" handle-success)))
-  )

@@ -71,7 +71,6 @@
         (when (and
                (not @retry)
                (= (count (state/get-exercise-groups)) 0))
-          (js/console.log "[INFO] try to get from firebase.")
           (reset! retry true)
           (sync-firebase-exercise)
           )

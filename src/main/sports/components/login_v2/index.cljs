@@ -1,5 +1,6 @@
 (ns sports.components.login-v2.index
   (:require
+   [re-frame.core :as re-frame]
    [reagent.core :refer [as-element]]
    [reagent-mui.material.button :refer [button]]
    [reagent-mui.material.card :refer [card]]
@@ -14,8 +15,8 @@
    [reagent-mui.material.input-label :refer [input-label]]
    [reagent-mui.material.alert :refer [alert]]
    [reagent-mui.material.card-content :refer [card-content]]
-   [sports.components.login.api :as a :refer [login?]]
    [sports.state :as state]
+   [sports.events :as events]
    [reagent-mui.material.container :refer [container]]))
 
 (defn- get-form-value
@@ -41,7 +42,10 @@
         password (get-form-value e "password")
         remember? (get-form-checked e "remember")]
     (js/console.log remember? "aoe" account password)
-    (login? account password remember?)))
+    (re-frame/dispatch [::events/login {:account account
+                                        :password password
+                                        :remember? remember?}] )
+    ))
 
 (defn login []
   (let [error (state/subscribe :validate-msg)]
