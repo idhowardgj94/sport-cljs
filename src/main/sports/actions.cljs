@@ -7,12 +7,6 @@
    [sports.indexdb :as index-db]
    ["date-fns" :refer [endOfToday addMonths startOfYear endOfYear startOfToday endOfToday]]))
 
-(defn sync-from-firebase
-  "sync the exercise group data from firebase
-  and store it to firebase db"
-  []
-  (index-db/sync-firebase-exercise))
-
 (defn get-monthly-duration!
   "Aim to get monthly duration, start from today"
   []

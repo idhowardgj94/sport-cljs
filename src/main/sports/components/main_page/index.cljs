@@ -2,9 +2,11 @@
   (:require [cljss.core :refer-macros [defstyles]]
             [sports.tools.route :refer [match-sub-path]]
             [sports.state :refer [store subscribe]]
+            [re-frame.core :as re-frame]
             [clojure.string :refer [join]]
             [reitit.frontend :as rf]
-            [reitit.frontend.easy :as rfe]))
+            [reitit.frontend.easy :as rfe]
+            [sports.firebase.exercise :as exercise]))
 
 (defstyles deck
   []
@@ -20,10 +22,16 @@
    :height "calc(100vh - 50px)"
    :overflow "scroll"})
 
+
+(re-frame/reg-sub
+ ::loading
+ (fn [db _]
+   (:exercise/loading db)))
+
 (defn content-view
   [match]
   (let [view (:view (:data match))
-        loading (subscribe :exercise/loading)]
+        loading @(re-frame/subscribe [::loading])]
     (if (= loading "success")
       (do
         [:div {:class [(content)]}

@@ -8,9 +8,7 @@
             [sports.firebase.auth :refer [reg-auth-effect]]
             [sports.events :as events]
             [cljs.spec.alpha :as s]
-            [sports.indexdb :refer [sync-firebase-exercise
-                                    get-firebase-exercise
-                                    setup-index-db]]
+            [sports.indexdb :refer [reg-index-db-effect]]
             [cljss.core :as css]
             [sports.firebase.setup :refer [init-app]]
             [sports.firebase.auth :refer [setup-auth-listener]]
@@ -44,12 +42,11 @@
 (defn bootstrap-app
   "setup app related service"
   []
+  (reg-index-db-effect)
   (reg-route)
   (reg-auth-effect)
   (re-frame/dispatch-sync [::events/initialise-db])
-  (re-frame/dispatch-sync [::events/initialise-app config ENV])
-  ;; (setup-auth-listener)
-  )
+  (re-frame/dispatch-sync [::events/initialise-app config ENV]))
 (defn ^:dev/after-load mount-root
   []
   (css/remove-styles!)

@@ -2,11 +2,10 @@
   (:require [sports.state :refer [store]]
             [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [sports.indexdb :refer [setup-index-db]]
             [sports.firebase.setup :refer [init-app]]
             [cljs.spec.alpha :as s]
             [spec-tools.data-spec :as ds]
-            ))
+            [sports.firebase.exercise :as exercise]))
 ;; refactor: event out
 (defn login-event!
   [u]
@@ -36,8 +35,13 @@
     :chart/start-date nil
     :chart/end-date nil
     :chart/state "init"
-    :chart/*err-msg nil
+    :chart/err-msg nil
     :chart/data []}))
+
+(re-frame/reg-event-db
+ ::setup-groups
+ (fn-traced [db [_ groups]]
+            (assoc db :exercise/groups groups)))
 
 (re-frame/reg-event-db
  ::firebase-app
@@ -49,7 +53,7 @@
  (fn-traced [{:keys [db]} [_ config ENV]]
             {:dispatch [:setup-firebase {:config config :ENV ENV}]
              :setup-route nil
-             ::setup-index-db nil}))
+             :setup-index-db nil}))
 
 (re-frame/reg-event-db
  ::clear-login-validate-msg
@@ -61,11 +65,35 @@
  (fn-traced [db [_ msg]]
             (assoc db :validate-msg msg)))
 
-(re-frame/reg-fx
- ::setup-index-db
- (fn [_]
-   (setup-index-db)
-   ))
+
+;; --------- indexdb related Event -------------
+(re-frame/reg-event-db
+ ::set-index-db
+ (fn-traced [db [_ payload]]
+             (assoc db :index-db/db payload)))
+
+(re-frame/reg-event-fx
+ ::get-exercise-from-indexdb
+ (fn-traced
+  [{:keys [db]} _]
+  (when-let [index-db (get db :index-db/db)]
+    {:get-from-index-db index-db})))
+
+(re-frame/reg-event-db
+ ::set-exercise-loading
+ (fn-traced [db [_ payload]]
+            (assoc db :exercise/loading payload)))
+
+(re-frame/reg-event-fx
+ ::set-exercise-groups
+ (fn-traced [{:keys [db]} [_ payload]]
+            {:db (assoc db :exercise/groups payload)
+             :dispatch [::set-exercise-loading "success"]}))
+
+(re-frame/reg-event-fx
+ ::sync-index-db-firebase-exercise
+ (fn-traced [{:keys [db]} _]
+            {:sync-index-db-from-firebase (:index-db/db db)}))
 
 ;; -------- Auth related event -------
 ;; TODO: to spec
@@ -102,3 +130,10 @@
             ;; login data spec
             (s/explain login-payload-spec payload)
             {:login payload}))
+
+
+;; --------- Record Event -------------
+(re-frame/reg-event-fx
+ ::add-exercise-record
+ (fn-traced [_ _]
+            (js/console.log "TODO")))

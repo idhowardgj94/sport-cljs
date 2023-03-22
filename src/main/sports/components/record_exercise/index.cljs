@@ -1,5 +1,7 @@
 (ns sports.components.record-exercise.index
   (:require
+   [re-frame.core :as re-frame]
+   [sports.events :as events]
    ["date-picker" :default DatePicker]
    ["react" :refer [useEffect]]
    [cljss.core :refer-macros [defstyles]]
@@ -15,9 +17,9 @@
             get-today]]
    [sports.components.header.index :refer [head-layout head]]
    [sports.state]
-   [sports.actions :refer [sync-from-firebase]]
    [cljs.core.async :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]))
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [sports.components.record-exercise.event :as event]))
 
 ;; TODO: exercise-meta used to store the input meta data.
 ;; may be correct the world to record-exercise-meta.
@@ -51,7 +53,7 @@
 
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
-         {:on-click #(sync-from-firebase)}
+         {:on-click #(re-frame/dispatch [::events/sync-index-db-firebase-exercise])}
          [:i.my-auto.fa-solid.fa-rotate.fa-xl]]
         ]
 
@@ -66,6 +68,11 @@
   ([]
    (record-head (str  "Today is " (get-today)))))
 
+(re-frame/reg-sub
+ ::get-exercise-groups
+ (fn [db _]
+   (:exercise/groups db)))
+
 (defn click-item-handler!
   [id]
   (swap! exercise-meta #(assoc % :groupId id))
@@ -74,7 +81,7 @@
 (defn record-exercise-page
   "content for record exercise list"
   []
-  (let [group (state/get-exercise-groups)]
+  (let [group @(re-frame/subscribe [::get-exercise-groups])]
     [:div.container
      [record-head]
      [:section.text-md.mx-2.my-4.py-2 "what do you wont to do today??"]
