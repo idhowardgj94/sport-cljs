@@ -10,7 +10,6 @@
             [sports.components.login-v2.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
             [sports.components.chart-page.index :refer [chart-page]]
-            [re-frame.core :as re-frame]
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 #_(require '[cljs.repl :refer [doc]])
@@ -25,9 +24,9 @@
   []
   (case @(re-frame/subscribe [::auth?])
     true (do
-             (rfe/push-state :main-page {:page-name :record}))
+           (rfe/push-state :main-page {:page-name :record}))
     false (do
-              (rfe/push-state :login))
+            (rfe/push-state :login))
     "loading" [:div (str "loading....")]
     (rfe/push-state :login)))
 
@@ -43,7 +42,7 @@
   (if @(re-frame/subscribe [::auth?])
     (do
         ;; Note: choose exercise is the main page
-        (rfe/replace-state :main-page {:page-name :choose-exercise}))
+      (rfe/replace-state :main-page {:page-name :choose-exercise}))
     page))
 
 (defn guard-middleware
@@ -71,7 +70,7 @@
               [["/choose-exercise"
                 {:name :choose-exercise
                  :view choose-exercise-page}]
-               ["/record" 
+               ["/record"
                 {:name :record
                  :view record-exercise-page}]
                ["/record-form"
@@ -82,7 +81,6 @@
                 {:name :chart
                  :view chart-page}]])
      :view #(guard-middleware main-page)}]])
-
 
 (defn reg-route
   []

@@ -1,19 +1,18 @@
 (ns sports.new-app
-  (:require [reagent.dom :as dom]
-            [reagent.core :as reagent]
-            [reagent.dom :as rdom]
-            [re-frame.core :as re-frame]
-            [sports.state :refer [store]]
-            [sports.route :refer [reg-route]]
-            [sports.firebase.auth :refer [reg-auth-effect]]
-            [sports.events :as events]
-            [cljs.spec.alpha :as s]
-            [sports.indexdb :refer [reg-index-db-effect]]
-            [cljss.core :as css]
-            [sports.firebase.setup :refer [init-app]]
-            [sports.firebase.auth :refer [setup-auth-listener]]
-            [sports.components.record-exercise.event :as event])
-  (:require-macros [sports.config :refer [firebase-config]]))
+  (:require
+   [cljs.spec.alpha :as s]
+   [cljss.core :as css]
+   [sports.components.chart-page.effect :refer [reg-chart-page-effect]]
+   [re-frame.core :as re-frame]
+   [reagent.core :as reagent]
+   [reagent.dom :as rdom]
+   [sports.events :as events]
+   [sports.firebase.auth :refer [reg-auth-effect]]
+   [sports.indexdb :refer [reg-index-db-effect]]
+   [sports.route :refer [reg-route]]
+   [sports.state :refer [store]])
+  (:require-macros [sports.config :refer [firebase-config]]
+                   [sports.spec-util :refer [assert-warning]]))
 
 (def functional-compiler (reagent.core/create-compiler {:function-components true}))
 (reagent/set-default-compiler! functional-compiler)
@@ -28,7 +27,6 @@
 ;; macro generate in compile time.
 (defonce config (firebase-config))
 
-
 (defn app
   []
   [:div
@@ -37,16 +35,16 @@
        [view (@store :match)])
      "Not found")])
 
-
-
 (defn bootstrap-app
   "setup app related service"
   []
+  (re-frame/dispatch-sync [::events/initialise-db])
   (reg-index-db-effect)
   (reg-route)
   (reg-auth-effect)
-  (re-frame/dispatch-sync [::events/initialise-db])
+  (reg-chart-page-effect)
   (re-frame/dispatch-sync [::events/initialise-app config ENV]))
+
 (defn ^:dev/after-load mount-root
   []
   (css/remove-styles!)
@@ -57,13 +55,10 @@
 (defn init
   []
   (js/console.log "inside init")
-  ;; TODO initialize db
   (bootstrap-app)
   (mount-root))
 
-#_(
-   (init)
+#_((init)
    (require '[cljs.repl :refer [doc]])
    (doc re-frame/dispatch-sync)
-   (doc re-frame/reg-fx)
-   )
+   (doc re-frame/reg-fx))

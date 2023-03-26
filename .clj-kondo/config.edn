@@ -3,6 +3,7 @@
            spade.core/defclass clojure.core/defn
            spade.core/defattrs clojure.core/defn
            spade.core/defkeyframes clojure.core/defn
-           cljss.core/defstyles clojure.core/defn}
+           cljss.core/defstyles clojure.core/defn
+           day8.re-frame.tracing/fn-traced clojure.core/fn}
  
  :linters {:unresolved-symbol {:exclude [(rum.core/defcs)]}}}
