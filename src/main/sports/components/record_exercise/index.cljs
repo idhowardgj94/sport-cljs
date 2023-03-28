@@ -4,7 +4,6 @@
    [sports.events :as events]
    ["date-picker" :default DatePicker]
    ["react" :refer [useEffect]]
-   [cljss.core :refer-macros [defstyles]]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]
    [sports.state :as state]
@@ -15,8 +14,7 @@
             get-exercises-by-group-id
             get-group-name-by-id
             get-today]]
-   [sports.components.header.index :refer [head-layout head]]
-   [sports.state]
+   [sports.components.header.index :refer [head]]
    [cljs.core.async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [sports.components.record-exercise.event :as event]))
@@ -28,8 +26,8 @@
 ;;@records
 ;;@exercise-meta
 (defn switch-choose-date!
-  [flag]
   "toggle the choose-date panel to show or not"
+  [flag]
   (let [{:keys [show]} (state/subscribe :exercise/choose-date)]
     (swap! state/store assoc-in [:exercise/choose-date :show] flag)))
 
@@ -54,8 +52,7 @@
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
          {:on-click #(re-frame/dispatch [::events/sync-index-db-firebase-exercise])}
-         [:i.my-auto.fa-solid.fa-rotate.fa-xl]]
-        ]
+         [:i.my-auto.fa-solid.fa-rotate.fa-xl]]]
 
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
@@ -138,8 +135,7 @@
     (-> (add-exercise-record! data)
         (.then #(swap! records (fn [store]
                                  (concat store (vector (assoc data :id (.-id %))))))))
-    (swap! number-count inc)
-    ))
+    (swap! number-count inc)))
 
 (defn get-exercise-name-by-id
   "
@@ -214,11 +210,11 @@
       [:div
        (for [it @records]
          (if (= it "invalid")
-           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                               [:div.flex-1 "Something went wrong with the data."]]
-           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                               [:div.flex-1 (str "Set " (:order it) )]
-                               [:div.flex-1 (str (:weight it) "KG")]
-                               [:div.flex-1  (str (:repeat it) "Rpt")]
-                               [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
-                                {:on-click #(delete-handler! records it)} "Delete"]]))]]]))
+           ^{:key (str (:order it) (:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                       [:div.flex-1 "Something went wrong with the data."]]
+           ^{:key (str (:order it) (:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                       [:div.flex-1 (str "Set " (:order it))]
+                                                       [:div.flex-1 (str (:weight it) "KG")]
+                                                       [:div.flex-1  (str (:repeat it) "Rpt")]
+                                                       [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
+                                                        {:on-click #(delete-handler! records it)} "Delete"]]))]]]))

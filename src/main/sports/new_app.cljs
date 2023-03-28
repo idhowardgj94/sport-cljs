@@ -11,8 +11,7 @@
    [sports.indexdb :refer [reg-index-db-effect]]
    [sports.route :refer [reg-route]]
    [sports.state :refer [store]])
-  (:require-macros [sports.config :refer [firebase-config]]
-                   [sports.spec-util :refer [assert-warning]]))
+  (:require-macros [sports.config :refer [firebase-config]]))
 
 (def functional-compiler (reagent.core/create-compiler {:function-components true}))
 (reagent/set-default-compiler! functional-compiler)

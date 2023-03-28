@@ -1,12 +1,10 @@
 (ns sports.events
-  (:require [sports.state :refer [store]]
-            [re-frame.core :as re-frame]
+  (:require [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [sports.firebase.setup :refer [init-app]]
             [cljs.spec.alpha :as s]
             [spec-tools.data-spec :as ds]
-            ["date-fns" :refer [endOfToday addMonths startOfYear endOfYear startOfToday endOfToday]]
-            [sports.firebase.exercise :as exercise]))
+            ["date-fns" :refer [endOfToday addMonths startOfYear endOfYear startOfToday endOfToday]]))
 
 (re-frame/reg-event-fx
  :setup-firebase
