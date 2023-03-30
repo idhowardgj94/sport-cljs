@@ -1,5 +1,5 @@
 (ns sports.firebase.auth
-  (:require 
+  (:require
    [reitit.frontend.easy :as rfe]
    ["regenerator-runtime/runtime"]
    ["firebase/auth" :as auth
@@ -7,11 +7,12 @@
    [sports.state :as s :refer [store]]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
    [sports.events :as events]
-   [re-frame.core :as re-frame]))
+   [re-frame.core :as re-frame]
+   [sports.components.record-exercise.event :as event]))
 
 (defn- get-auth
   []
-  (getAuth ))
+  (getAuth))
 
 (defn- connect-error!
   []
@@ -26,9 +27,9 @@
   [{:keys [app account password]}]
   (if (nil? app)
     (-> (signInWithEmailAndPassword (get-auth) account password)
+        (.then #(re-frame/dispatch [::events/get-exercise-from-indexdb]))
         (.catch #(re-frame/dispatch [::events/login-validate-msg (.-message %)])))
     (connect-error!)))
-
 
 (defn current-state!
   "check for current login state."
@@ -61,7 +62,7 @@
   []
   (re-frame/reg-fx
    :login
-   (fn-traced [_ payload]
+   (fn-traced [payload]
               (if (:remember? payload)
                 (-> (set-rememberme)
                     (.then (fn [] (login payload))))
@@ -71,7 +72,6 @@
   []
   (login-effect)
   (setup-auth-listener))
-
 
 #_((defn create-user
      "create user with email and password"

@@ -7,7 +7,6 @@
             [re-frame.core :as re-frame]
             [sports.events :as events]))
 
-
 (declare get-firebase-exercise)
 
 (defn sync-firebase-exercise
@@ -18,18 +17,18 @@
       (let [groups (<p! (fe/get-groups))
             groups' (atom groups)]
         ;; prepare exercises, which is group + exercises
-          (doseq [group groups]
-            (let [group-exercises (<p! (fe/get-exercise-items (:id group)))]
-              (swap! groups' (fn [lt]
-                                 (->> lt
-                                      (map #(if (= (:id %) (:id group))
-                                              (assoc % :exercises group-exercises)
-                                              %)))))))
+        (doseq [group groups]
+          (let [group-exercises (<p! (fe/get-exercise-items (:id group)))]
+            (swap! groups' (fn [lt]
+                             (->> lt
+                                  (map #(if (= (:id %) (:id group))
+                                          (assoc % :exercises group-exercises)
+                                          %)))))))
           ;; add to index-db
-          (doseq [group @groups']
-            (let [trans (db/transaction index-db ["exercises"] "readwrite")
-                  store (db/object-store trans "exercises")]
-              (db/put store (clj->js group)))))
+        (doseq [group @groups']
+          (let [trans (db/transaction index-db ["exercises"] "readwrite")
+                store (db/object-store trans "exercises")]
+            (db/put store (clj->js group)))))
       (re-frame/dispatch [::events/get-exercise-from-indexdb])
       (catch js/Error e (js/console.log e)))))
 
@@ -52,7 +51,7 @@
         (if (and (not @retry) (= (count @exercise-groups) 0))
           (do (reset! retry true)
               (re-frame/dispatch [::events/sync-index-db-firebase-exercise]))
-          (do (re-frame/dispatch [::events/set-exercise-groups @exercise-groups]))))
+          (re-frame/dispatch [::events/set-exercise-groups @exercise-groups])))
 
       (do (swap! exercise-groups conj!
                  (-> (db/create-cursor-with-value cursor)
@@ -70,10 +69,9 @@
   (try
     (let [trans (db/transaction index-db ["exercises"] "readwrite")
           store (db/object-store trans "exercises")]
-      (let [cur (-> (db/open-cursor store)
-                    (db/on "success" set-exercises-from-indexdb))]))
+      (-> (db/open-cursor store)
+          (db/on "success" set-exercises-from-indexdb)))
     (catch js/Error e (js/console.log e))))
-
 
 (defn handle-error
   [e]
@@ -107,10 +105,10 @@
   []
   (when-not (state/get-index-db)
     (as-> (db/open "exercises" 1) $
-        (db/on $ "error" handle-error)
-        (db/on $ "blocked" handle-blocked)
-        (db/on $ "upgradeneeded" handle-upgrade)
-        (db/on $ "success" #(handle-success $)))))
+      (db/on $ "error" handle-error)
+      (db/on $ "blocked" handle-blocked)
+      (db/on $ "upgradeneeded" handle-upgrade)
+      (db/on $ "success" #(handle-success $)))))
 
 (defn setup-index-db-effect
   []

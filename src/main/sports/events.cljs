@@ -22,6 +22,8 @@
              :app nil
              :user nil
              :index-db/db nil
+             :record/data []
+             :record/status "loading"
              :exercise/loading "loading"
              :exercise/groups []
              :exercise/choose-date {:show false :date (js/Date.)}
@@ -118,9 +120,42 @@
 ;; --------- Record Event -------------
 (re-frame/reg-event-fx
  ::add-exercise-record
- (fn-traced [_ _]
-            (js/console.log "TODO")))
+ (fn-traced [{:keys [db]} [_ data]]
+            (let [uid (-> (:user db)
+                          (.-uid))]
+              {:add-exercise-record-effect (assoc data :uid uid)})))
 
+(re-frame/reg-event-db
+ ::add-exercise-record-data
+ (fn-traced [db [_ data]]
+            (update db :record/data #(conj % data))))
+
+(re-frame/reg-event-fx
+ ::delete-exercise-record
+ (fn-traced [_ [_ data]]
+            {:delete-exercise-record-effect data
+             :dispatch [::delete-exercise-record-data data]}))
+
+(re-frame/reg-event-db
+ ::delete-exercise-record-data
+ (fn-traced [db [_ it]]
+            (update db :record/data (fn [data]
+                                      (->> data
+                                           (filter #(not= (:id %) (:id it))))))))
+
+(re-frame/reg-event-fx
+ ::get-exercise-by-date
+ (fn-traced [{:keys [db]} [_ payload]]
+            (let [{:keys [user]} db]
+              {:get-exercise-effect (assoc payload
+                                           :uid (.-uid user))})))
+
+(re-frame/reg-event-db
+ ::set-exercise-data
+ (fn-traced [db [_ {:keys [data status]}]]
+            (assoc db
+                   :record/data data
+                   :record/status status)))
 ;; --------- chart event ---------------
 (re-frame/reg-event-fx
  ::get-chart-data-by-group
@@ -142,10 +177,10 @@
             (s/assert chart-data-payload-spec payload)
             (s/explain chart-data-payload-spec payload)
             (let [data (:data payload)
-                  name {:name payload}]
+                  name (:name payload)]
               (when-not (= (count data) 0)
-                (update db :chart/data
-                        (fn [it] (conj it {:data data :name name})))))))
+                (-> (update db :chart/data
+                            (fn [it] (conj it {:data data :name name}))))))))
 
 (re-frame/reg-event-db
  ::set-chart-state
