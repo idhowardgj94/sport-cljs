@@ -1,8 +1,9 @@
 (ns sports.components.record-exercise.index
   (:require
+   [re-frame.core :as re-frame]
+   [sports.events :as events]
    ["date-picker" :default DatePicker]
    ["react" :refer [useEffect]]
-   [cljss.core :refer-macros [defstyles]]
    [reagent.core :as r]
    [reitit.frontend.easy :as rfe]
    [sports.state :as state]
@@ -10,24 +11,23 @@
     :refer [add-exercise-record! delete-exercise-by-id! get-exercises-by-date]]
    [sports.components.record-exercise.util
     :refer [get-date-format
-            get-exercises-by-group-id
-            get-group-name-by-id
             get-today]]
-   [sports.components.header.index :refer [head-layout head]]
-   [sports.state]
-   [sports.actions :refer [sync-from-firebase]]
+   [sports.components.header.index :refer [head]]
    [cljs.core.async :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]))
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [sports.components.record-exercise.event :as event]))
 
 ;; TODO: exercise-meta used to store the input meta data.
 ;; may be correct the world to record-exercise-meta.
 (defonce exercise-meta (r/atom {:groupId 0 :exerciseId 0}))
 (defonce records (r/atom []))
+(def number-count (r/atom 1))
+
 ;;@records
 ;;@exercise-meta
 (defn switch-choose-date!
-  [flag]
   "toggle the choose-date panel to show or not"
+  [flag]
   (let [{:keys [show]} (state/subscribe :exercise/choose-date)]
     (swap! state/store assoc-in [:exercise/choose-date :show] flag)))
 
@@ -51,9 +51,8 @@
 
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
-         {:on-click #(sync-from-firebase)}
-         [:i.my-auto.fa-solid.fa-rotate.fa-xl]]
-        ]
+         {:on-click #(re-frame/dispatch [::events/sync-index-db-firebase-exercise])}
+         [:i.my-auto.fa-solid.fa-rotate.fa-xl]]]
 
        [:section.bg-red-100.justify-center.items-center.px-4.inline-flex
         [:button.appearance-none.shadow-none.border-none
@@ -66,6 +65,39 @@
   ([]
    (record-head (str  "Today is " (get-today)))))
 
+(re-frame/reg-sub
+ ::get-exercise-groups
+ (fn [db _]
+   (:exercise/groups db)))
+
+(re-frame/reg-sub
+ ::get-exercises-by-group-id
+ (fn [_ _]
+   (re-frame/subscribe [::get-exercise-groups]))
+ (fn [groups [_ group-id]]
+   (->> groups
+        (filter #(= (:id %) (js/parseInt group-id)))
+        (#(:exercises (nth % 0))))))
+
+(re-frame/reg-sub
+ ::get-group-name-by-id
+ (fn [_ _]
+   (re-frame/subscribe [::get-exercise-groups]))
+ (fn [groups [_ id]]
+   (->> groups
+        (filter #(= (:id %) (js/parseInt id)))
+        (first)
+        :name)))
+
+(re-frame/reg-sub
+ ::get-exercise-name-by-id
+ (fn [[_ {:keys [group-id]}]]
+   (re-frame/subscribe [::get-exercises-by-group-id group-id]))
+ (fn [groups [_ {:keys [exercise-id]}]]
+   (->> groups
+        (filter #(= (:id %) exercise-id))
+        (#(:name (nth % 0))))))
+
 (defn click-item-handler!
   [id]
   (swap! exercise-meta #(assoc % :groupId id))
@@ -74,7 +106,7 @@
 (defn record-exercise-page
   "content for record exercise list"
   []
-  (let [group (state/get-exercise-groups)]
+  (let [group @(re-frame/subscribe [::get-exercise-groups])]
     [:div.container
      [record-head]
      [:section.text-md.mx-2.my-4.py-2 "what do you wont to do today??"]
@@ -95,9 +127,9 @@
   [match]
   (let [{:keys [id]} (:query-params match)]
     [:div.container
-     [record-head (get-group-name-by-id id)]
+     [record-head @(re-frame/subscribe [::get-group-name-by-id id])]
      [:div.mt-2
-      (for [exercise (get-exercises-by-group-id id)]
+      (for [exercise @(re-frame/subscribe [::get-exercises-by-group-id id])]
         ^{:key (:id exercise)}
         [:div.flex.px-2.border-0.border-b.border-solid.border-slate-300
          [:button.font-medium.text-xl.border-0.flex-1.appearance-none.text-left.py-2
@@ -118,39 +150,57 @@
       (.getElementById id)
       (.-value)))
 
-(def number-count (r/atom 1))
+;; (re-frame/reg-fx
+;;  :add-record-effect
+;;  (fn [payload]
+;;    (-> (add-exercise-record! payload)
+;;        (.then #(swap! records (fn [store]
+;;                                 (concat store (vector (assoc data :id (.-id %))))))))))
+;;
+
+(re-frame/reg-fx
+ :add-exercise-record-effect
+ (fn [data]
+   (-> (add-exercise-record! data)
+       (.then #(re-frame/dispatch [::events/add-exercise-record-data (assoc data :id (.-id %))])))))
+
 (defn submit-record-handler!
   "records: r/atom
   orders: r/atom"
-  [e records]
+  [e]
   (.preventDefault e)
-
   (let [repeat (get-form-by-name e "repeat")
         weight (get-form-by-name e "weight")
         data (conj @exercise-meta {:order @number-count :weight weight :repeat repeat :date (js/Date. (get-form-by-id "date"))})]
-    (-> (add-exercise-record! data)
-        (.then #(swap! records (fn [store]
-                                 (concat store (vector (assoc data :id (.-id %))))))))
-    (swap! number-count inc)
-    ))
+    (re-frame/dispatch [::events/add-exercise-record data])
+    (swap! number-count inc)))
 
-(defn get-exercise-name-by-id
-  "
-  Input: exerciseId
-  output exerciseName
-  "
-  [exercise-id]
-  (->> (get-exercises-by-group-id (:groupId @exercise-meta))
-       (filter #(= (:id %) exercise-id))
-       (#(:name (nth % 0)))))
+(re-frame/reg-fx
+ :delete-exercise-record-effect
+ (fn [data]
+   (delete-exercise-by-id! (:id data))))
 
 (defn delete-handler!
   "handle delete event when user click delete"
-  [records it]
-  (delete-exercise-by-id! (:id it))
-  (reset! records (->> @records
-                       (filter #(not= (:id %) (:id it))))))
+  [it]
+  (re-frame/dispatch [::events/delete-exercise-record it]))
 
+(declare get-ordered-data)
+(re-frame/reg-fx
+ :get-exercise-effect
+ (fn [{:keys [date exercise-id uid] :as payload}]
+   (go
+     (try
+       (let [data (<p! (get-exercises-by-date date exercise-id uid))]
+         (->> (get-ordered-data data)
+              (#(re-frame/dispatch [::events/set-exercise-data  {:data % :status "success"}])))
+         (let [orders (->> @records
+                           (map #(:order %)))
+               count (or (apply max orders) 0)]
+           (reset! number-count (+ 1 count))))
+       (catch js/Error err (js/console.log err))))))
+
+;; TODO: no order?
 (defn get-ordered-data
   "get erdered data, will order by order field
   if not exist, will ad a order field with orginal order"
@@ -158,29 +208,31 @@
   (let [first (first data)]
     (case (:order first)
       nil     (->> (map-indexed list data)
-                   (map (fn [[idx it]] (assoc it :order (+ idx 1)))))
+                   (map (fn [[idx it]] (assoc it :order (+ idx 1))))
+                   (into []))
       (->> data
-           (sort-by :order)))))
+           (sort-by :order)
+           (into [])))))
+
+(re-frame/reg-sub
+ ::get-exercise-data
+ (fn [db _]
+   (->> (:record/data db)
+        (sort-by :order))))
 
 (defn record-form-page
   "record exercise form"
   [match]
+  (print @exercise-meta)
   (let [exercise-id (:exerciseId (:query-params match))
-        name (get-exercise-name-by-id exercise-id)
-        date (get-in @state/store [:exercise/choose-date :date])]
+        name @(re-frame/subscribe [::get-exercise-name-by-id {:group-id (:groupId @exercise-meta)
+                                                              :exercise-id exercise-id}])
+        date (get-in @state/store [:exercise/choose-date :date])
+        records @(re-frame/subscribe [::get-exercise-data])]
 
     (useEffect
      (fn []
-       (go
-         (try
-           (let [data (<p! (get-exercises-by-date date exercise-id))]
-             (->> (get-ordered-data data)
-                  (reset! records))
-             (let [orders (->> @records
-                               (map #(:order %)))
-                   count (or (apply max orders) 0)]
-               (reset! number-count (+ 1 count))))
-           (catch js/Error err (js/console.log err)))))
+       (re-frame/dispatch [::events/get-exercise-by-date {:date date :exercise-id exercise-id}]))
      (array date))
 
     [:div.container
@@ -200,18 +252,18 @@
         [:div.flex-1
          [:input.mr-4.rounded-xl {:type "number" :placeholder "rep" :name "repeat"}]]]
        [:button.bg-green-500.hover:bg-green-700.rounded-xl.text-white.p-2.mx-auto.block.mt-4
-        {:on-click #(submit-record-handler! % records)
+        {:on-click #(submit-record-handler! %)
          :type "submit"} "Submit"]]]
      [:section
       [:div.text-lg.text-center.font-medium.p-2.bg-blue-100 "Records"]
       [:div
-       (for [it @records]
+       (for [it records]
          (if (= it "invalid")
-           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                               [:div.flex-1 "Something went wrong with the data."]]
-           ^{:key (str (:order it)(:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
-                               [:div.flex-1 (str "Set " (:order it) )]
-                               [:div.flex-1 (str (:weight it) "KG")]
-                               [:div.flex-1  (str (:repeat it) "Rpt")]
-                               [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
-                                {:on-click #(delete-handler! records it)} "Delete"]]))]]]))
+           ^{:key (str (:order it) (:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                       [:div.flex-1 "Something went wrong with the data."]]
+           ^{:key (str (:order it) (:exerciseId it))} [:div.flex.flex-row.p-2.border-sstale-300.border-0.border-b
+                                                       [:div.flex-1 (str "Set " (:order it))]
+                                                       [:div.flex-1 (str (:weight it) "KG")]
+                                                       [:div.flex-1  (str (:repeat it) "Rpt")]
+                                                       [:button.bg-red-500.text-white.p-1.rounded-xl.px-2
+                                                        {:on-click #(delete-handler! it)} "Delete"]]))]]]))

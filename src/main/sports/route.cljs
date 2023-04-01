@@ -5,6 +5,7 @@
             [reitit.coercion.spec :as rss]
             [spec-tools.data-spec :as ds]
             [sports.state :refer [store subscribe]]
+            [re-frame.core :as re-frame]
             [sports.components.record-exercise.index :refer [record-form-page record-exercise-page choose-exercise-page]]
             [sports.components.login-v2.index :refer [login]]
             [sports.components.main-page.index :refer [main-page]]
@@ -12,14 +13,20 @@
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 #_(require '[cljs.repl :refer [doc]])
+
+(re-frame/reg-sub
+ ::auth?
+ (fn [db _]
+   (:auth? db)))
+
 (defn auth-p?
   "check if this user login or not"
   []
-  (case (subscribe :auth?)
+  (case @(re-frame/subscribe [::auth?])
     true (do
-             (rfe/push-state :main-page {:page-name :record}))
+           (rfe/push-state :main-page {:page-name :record}))
     false (do
-              (rfe/push-state :login))
+            (rfe/push-state :login))
     "loading" [:div (str "loading....")]
     (rfe/push-state :login)))
 
@@ -32,10 +39,10 @@
   if login, than goto main-page
   "
   [page]
-  (if (subscribe :auth?)
+  (if @(re-frame/subscribe [::auth?])
     (do
         ;; Note: choose exercise is the main page
-        (rfe/replace-state :main-page {:page-name :choose-exercise}))
+      (rfe/replace-state :main-page {:page-name :choose-exercise}))
     page))
 
 (defn guard-middleware
@@ -43,7 +50,7 @@
   if the user not login
   redirect to login."
   [page]
-  (if (subscribe :auth?)
+  (if @(re-frame/subscribe [::auth?])
     (do
       page)
     (do
@@ -63,7 +70,7 @@
               [["/choose-exercise"
                 {:name :choose-exercise
                  :view choose-exercise-page}]
-               ["/record" 
+               ["/record"
                 {:name :record
                  :view record-exercise-page}]
                ["/record-form"
@@ -75,10 +82,13 @@
                  :view chart-page}]])
      :view #(guard-middleware main-page)}]])
 
-(defn init! []
-  "init is about route setting."
-  (rfe/start! 
-   (new-router routes)
-   (fn [m] (swap! store assoc  :match m))
-    ;; set to false to enable HistoryAPI
-   {:use-fragment true}))
+(defn reg-route
+  []
+  (re-frame/reg-fx
+   :setup-route
+   (fn [_]
+     (rfe/start!
+      (rf/router routes {:data {:coercion rss/coercion}})
+      (fn [m] (swap! store assoc  :match m))
+      ;; set to false to enable HistoryAPI
+      {:use-fragment true}))))

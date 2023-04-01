@@ -1,17 +1,9 @@
 (ns sports.actions
   (:require
    [cljs.core.async :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]
    [sports.firebase.chart :refer [get-exercise-by-startdate-and-enddate]]
    [sports.state :refer [store]]
-   [sports.indexdb :as index-db]
    ["date-fns" :refer [endOfToday addMonths startOfYear endOfYear startOfToday endOfToday]]))
-
-(defn sync-from-firebase
-  "sync the exercise group data from firebase
-  and store it to firebase db"
-  []
-  (index-db/sync-firebase-exercise))
 
 (defn get-monthly-duration!
   "Aim to get monthly duration, start from today"
@@ -34,15 +26,11 @@
 (defn get-year-duration!
   "get year duration."
   []
-  (let [today ()
-        end (endOfYear (endOfToday))
+  (let [end (endOfYear (endOfToday))
         start (startOfYear (startOfToday))]
     (swap! store assoc
            :chart/end-date end
            :chart/start-date start)))
-
-
-
 
 (defn get-chart-data-by-group!
   "get chart data by group
@@ -55,12 +43,12 @@
     (try
       (-> (->> exercises
                ;; TODO: how this id -> gid not found?
-                (map #(-> (get-exercise-by-startdate-and-enddate uid (:id %) startdate enddate)
-                          (.then (fn [data]
-                                   (if-not (= (.-length (clj->js data)) 0)
-                                     (swap! store (fn [state] (update state :chart/data
-                                                                      (fn [it] (conj it {:data data :name (:name %)}))))))))))
-                (js/Promise.all))
+               (map #(-> (get-exercise-by-startdate-and-enddate uid (:id %) startdate enddate)
+                         (.then (fn [data]
+                                  (when-not (= (.-length (clj->js data)) 0)
+                                    (swap! store (fn [state] (update state :chart/data
+                                                                     (fn [it] (conj it {:data data :name (:name %)}))))))))))
+               (js/Promise.all))
           (.then #(swap! store assoc :chart/state "done")))
       (catch js/Error e (js/console.log (ex-cause e))))))
 

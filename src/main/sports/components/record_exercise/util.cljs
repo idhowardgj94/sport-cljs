@@ -16,8 +16,8 @@
 (defn get-group-by-id
   [id]
   (->> (get-exercise-groups)
-      (filter #(= (:id %) id))
-      (first)))
+       (filter #(= (:id %) id))
+       (first)))
 
 (defn is-nan
   [text]

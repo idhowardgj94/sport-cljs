@@ -1,18 +1,18 @@
 (ns sports.firebase.auth
-  (:require 
+  (:require
    [reitit.frontend.easy :as rfe]
    ["regenerator-runtime/runtime"]
    ["firebase/auth" :as auth
     :refer [getAuth signInWithEmailAndPassword createUserWithEmailAndPassword onAuthStateChanged setPersistence browserLocalPersistence]]
-   [sports.state :as s :refer [store]]))
+   [sports.state :as s :refer [store]]
+   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [sports.events :as events]
+   [re-frame.core :as re-frame]
+   [sports.components.record-exercise.event :as event]))
 
 (defn- get-auth
   []
-  (getAuth (get @store :app)))
-
-(defn- connect-auth?
-  []
-  (not= (get @store :app) nil))
+  (getAuth))
 
 (defn- connect-error!
   []
@@ -20,16 +20,15 @@
 
 (defn set-rememberme
   []
-  ;; TODO: give option set remeber or not
   (setPersistence (get-auth) browserLocalPersistence))
 
 (defn login
   "login user via email and password"
-  [email password fn]
-  (if (connect-auth?)
-    (-> (signInWithEmailAndPassword (get-auth) email password)
-        (.then fn)
-        (.catch #(swap! store assoc :validate-msg (.-message %))))
+  [{:keys [app account password]}]
+  (if (nil? app)
+    (-> (signInWithEmailAndPassword (get-auth) account password)
+        (.then #(re-frame/dispatch [::events/get-exercise-from-indexdb]))
+        (.catch #(re-frame/dispatch [::events/login-validate-msg (.-message %)])))
     (connect-error!)))
 
 (defn current-state!
@@ -38,24 +37,41 @@
   (let [auth (get-auth)
         user (.-currentUser auth)]
     (when (some? user)
-      (swap! store assoc :user (.-user user))
-      (swap! store assoc :auth? true))))
+      (re-frame/dispatch [::events/auth-change {:user (js->clj user)
+                                                :auth? true}]))))
 
 ;; an observer to watch if a user is login or not
-;; TODO: to events ?
 (defn setup-auth-listener
   []
-  (current-state!)
-  (onAuthStateChanged (get-auth)
-    (fn [user]
-      (if (some? user)
-        (do ;; TODO: it can abstract to an event
-          (swap! store assoc :user (js->clj user))
-          (swap! store assoc :auth? true))
-        (do ;; TODO: it can abstract to a event
-            (swap! store assoc :user nil)
-            (swap! store assoc :auth? false)))
-      (rfe/push-state :index))))
+  (re-frame/reg-fx
+   :setup-auth-listener
+   (fn-traced [_ _]
+              (current-state!)
+              (onAuthStateChanged
+               (get-auth)
+               (fn [user]
+                 (if (some? user)
+                   (re-frame/dispatch
+                    [::events/auth-change {:user (js->clj user)
+                                           :auth? true}])
+                   (re-frame/dispatch [::events/auth-change {:user nil
+                                                             :auth? false}]))
+                 (rfe/push-state :index))))))
+
+(defn login-effect
+  []
+  (re-frame/reg-fx
+   :login
+   (fn-traced [payload]
+              (if (:remember? payload)
+                (-> (set-rememberme)
+                    (.then (fn [] (login payload))))
+                (login payload)))))
+
+(defn reg-auth-effect
+  []
+  (login-effect)
+  (setup-auth-listener))
 
 #_((defn create-user
      "create user with email and password"

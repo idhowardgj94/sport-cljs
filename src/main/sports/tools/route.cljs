@@ -9,7 +9,6 @@
 
 (defn get-page-name
   [match]
-  (js/console.log "inside get-page-name")
   (:page-name (:path (:parameters match))))
 
 (defn match-sub-path

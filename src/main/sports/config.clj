@@ -5,7 +5,6 @@
   [name]
   (env name))
 
-;; TODO: manage firebase-config
 (defmacro firebase-config
   []
   {:apiKey (get-env "API_KEY")

@@ -8,7 +8,8 @@
    ["firebase/app" :as firebase-app :refer [initializeApp]]
    [reitit.frontend.easy :as rfe]
    [sports.state :as s :refer [store]]
-   [sports.firebase.auth :refer [setup-auth-listener]])
+   [re-frame.core :as re-frame])
+   ;; [sports.firebase.auth :refer [setup-auth-listener]])
   (:require-macros [sports.config :refer [firebase-config]]))
 
 ;; Note: for debug use
@@ -20,18 +21,18 @@
 
 (defn init-app
   [config env]
-  (swap! store assoc :app (initializeApp (clj->js config)))
-  (when-not @init
-    (let [auth (getAuth (get-app store))
-          database (getDatabase (get-app store))
-          firestore (getFirestore (get-app store))]
-      (when (= env "development")
-        (connectAuthEmulator auth "http://localhost:9099")
-        (connectDatabaseEmulator database "localhost" 9000)
-        (connectFirestoreEmulator firestore "localhost" 8080))
-      (setup-auth-listener)
-      (rfe/push-state :index)
-      (reset! init true))))
+  (let [app  (initializeApp (clj->js config))]
+    (when-not @init
+      (let [auth (getAuth app)
+            database (getDatabase app)
+            firestore (getFirestore app)]
+        (when (= env "development")
+          (connectAuthEmulator auth "http://localhost:9099")
+          (connectDatabaseEmulator database "localhost" 9000)
+          (connectFirestoreEmulator firestore "localhost" 8080))
+        (rfe/push-state :index)
+        (reset! init true)))
+    app))
 
 #_((init-app)
    (login "howard2@gmail.com" "123456")
